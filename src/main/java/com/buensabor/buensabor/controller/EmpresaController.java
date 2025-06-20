@@ -35,34 +35,40 @@ public class EmpresaController {
     }
 
     @PostMapping("/crear-con-imagen")
-    public ResponseEntity<?> crearEmpresaConImagen(
-            @RequestParam("nombre") String nombre,
-            @RequestParam("razonSocial") String razonSocial,
-            @RequestParam("cuil") Long cuil,
-            @RequestParam("base64Image") String base64Image) {
-        try {
-            // Generar un nombre único para la imagen
-            String fileName = "imagen_" + System.currentTimeMillis() + ".jpg";
+public ResponseEntity<?> crearEmpresaConImagen(
+        @RequestParam("nombre") String nombre,
+        @RequestParam("razonSocial") String razonSocial,
+        @RequestParam("cuil") Long cuil,
+        @RequestParam("base64Image") String base64Image) {
+    try {
+        // Log para verificar los parámetros recibidos
+        System.out.println("Nombre recibido: " + nombre);
+        System.out.println("Razón Social recibida: " + razonSocial);
+        System.out.println("CUIL recibido: " + cuil);
+        System.out.println("Imagen Base64 recibida: " + base64Image);
 
-            // Guardar la imagen y obtener la ruta
-            String rutaImagen = funcionalidades.guardarImagen(base64Image, fileName);
+        // Generar un nombre único para la imagen
+        String fileName = "imagen_" + System.currentTimeMillis() + ".jpg";
 
-            // Crear la entidad Empresa y asociar la ruta de la imagen
-            Empresa empresa = Empresa.builder()
-                    .nombre(nombre)
-                    .razonSocial(razonSocial)
-                    .cuil(cuil)
-                    .imagen(rutaImagen)
-                    .build();
+        // Guardar la imagen y obtener la ruta
+        String rutaImagen = funcionalidades.guardarImagen(base64Image, fileName);
 
-            // Guardar la empresa en la base de datos
-            Empresa nuevaEmpresa = empresaService.save(empresa);
+        // Crear la entidad Empresa y asociar la ruta de la imagen
+        Empresa empresa = Empresa.builder()
+                .nombre(nombre)
+                .razonSocial(razonSocial)
+                .cuil(cuil)
+                .imagen(rutaImagen)
+                .build();
 
-            return ResponseEntity.ok(nuevaEmpresa);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al crear la empresa: " + e.getMessage());
-        }
+        // Guardar la empresa en la base de datos
+        Empresa nuevaEmpresa = empresaService.save(empresa);
+
+        return ResponseEntity.ok(nuevaEmpresa);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body("Error al crear la empresa: " + e.getMessage());
     }
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){
