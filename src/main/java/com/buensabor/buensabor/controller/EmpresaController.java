@@ -1,5 +1,6 @@
 package com.buensabor.buensabor.controller;
 
+import com.buensabor.buensabor.dto.empresa.EmpresaDto;
 import com.buensabor.buensabor.entities.Empresa;
 import com.buensabor.buensabor.service.IEmpresaService;
 import com.buensabor.buensabor.service.funcionalidades.Funcionalidades;
@@ -34,31 +35,32 @@ public class EmpresaController {
         }
     }
 
-    @PostMapping("/crear-con-imagen")
-public ResponseEntity<?> crearEmpresaConImagen(
-        @RequestParam("nombre") String nombre,
-        @RequestParam("razonSocial") String razonSocial,
-        @RequestParam("cuil") Long cuil,
-        @RequestParam("base64Image") String base64Image) {
+  @PostMapping("/crear-con-imagen")
+public ResponseEntity<?> crearEmpresaConImagen(@RequestBody EmpresaDto empresaDTO) {
     try {
         // Log para verificar los parámetros recibidos
-        System.out.println("Nombre recibido: " + nombre);
-        System.out.println("Razón Social recibida: " + razonSocial);
-        System.out.println("CUIL recibido: " + cuil);
-        System.out.println("Imagen Base64 recibida: " + base64Image);
+        System.out.println("Nombre recibido: " + empresaDTO.getNombre());
+        System.out.println("Razón Social recibida: " + empresaDTO.getRazonSocial());
+        System.out.println("CUIL recibido: " + empresaDTO.getCuil());
+        System.out.println("Imagen Base64 recibida: " + empresaDTO.getImagen());
 
-        // Generar un nombre único para la imagen
-        String fileName = "imagen_" + System.currentTimeMillis() + ".jpg";
+        // Validar y agregar el prefijo adecuado al Base64
+        String base64Imagen = empresaDTO.getImagen();
+        if (!base64Imagen.startsWith("data:image/")) {
+            // Detectar el tipo de imagen (por ejemplo, JPEG, PNG)
+            String tipoImagen = "jpeg"; // Por defecto, se asume JPEG
+            if (base64Imagen.contains("iVBORw0KGgo")) { // Identificador de PNG
+                tipoImagen = "png";
+            }
+            base64Imagen = "data:image/" + tipoImagen + ";base64," + base64Imagen;
+        }
 
-        // Guardar la imagen y obtener la ruta
-        String rutaImagen = funcionalidades.guardarImagen(base64Image, fileName);
-
-        // Crear la entidad Empresa y asociar la ruta de la imagen
+        // Crear la entidad Empresa y asociar el Base64 directamente
         Empresa empresa = Empresa.builder()
-                .nombre(nombre)
-                .razonSocial(razonSocial)
-                .cuil(cuil)
-                .imagen(rutaImagen)
+                .nombre(empresaDTO.getNombre())
+                .razonSocial(empresaDTO.getRazonSocial())
+                .cuil(empresaDTO.getCuil())
+                .imagen(base64Imagen) // Guardar el Base64 con el prefijo
                 .build();
 
         // Guardar la empresa en la base de datos
