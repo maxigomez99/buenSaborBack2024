@@ -2,6 +2,7 @@ package com.buensabor.buensabor.controller;
 
 import com.buensabor.buensabor.entities.Empresa;
 import com.buensabor.buensabor.service.IEmpresaService;
+import com.buensabor.buensabor.service.funcionalidades.Funcionalidades;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,8 @@ public class EmpresaController {
     @Autowired
     private IEmpresaService empresaService;
 
+    @Autowired
+    private Funcionalidades funcionalidades;
     // Crud
     @GetMapping("/traer-todo/eliminado/")
     public ResponseEntity<?> mostrarListaCompleta() {
@@ -31,7 +34,33 @@ public class EmpresaController {
         }
     }
 
+    @PostMapping("/crear-con-imagen")
+    public ResponseEntity<?> crearEmpresaConImagen(
+            @RequestParam("nombre") String nombre,
+            @RequestParam("razonSocial") String razonSocial,
+            @RequestParam("cuil") Long cuil,
+            @RequestParam("base64Image") String base64Image,
+            @RequestParam("fileName") String fileName) {
+        try {
+            // Guardar la imagen y obtener la ruta
+            String rutaImagen = funcionalidades.guardarImagen(base64Image, fileName);
 
+            // Crear la entidad Empresa y asociar la ruta de la imagen
+            Empresa empresa = Empresa.builder()
+                    .nombre(nombre)
+                    .razonSocial(razonSocial)
+                    .cuil(cuil)
+                    .imagen(rutaImagen)
+                    .build();
+
+            // Guardar la empresa en la base de datos
+            Empresa nuevaEmpresa = empresaService.save(empresa);
+
+            return ResponseEntity.ok(nuevaEmpresa);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al crear la empresa: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){
