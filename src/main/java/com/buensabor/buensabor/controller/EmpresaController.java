@@ -39,9 +39,11 @@ public class EmpresaController {
             @RequestParam("nombre") String nombre,
             @RequestParam("razonSocial") String razonSocial,
             @RequestParam("cuil") Long cuil,
-            @RequestParam("base64Image") String base64Image,
-            @RequestParam("fileName") String fileName) {
+            @RequestParam("base64Image") String base64Image) {
         try {
+            // Generar un nombre único para la imagen
+            String fileName = "imagen_" + System.currentTimeMillis() + ".jpg";
+
             // Guardar la imagen y obtener la ruta
             String rutaImagen = funcionalidades.guardarImagen(base64Image, fileName);
 
