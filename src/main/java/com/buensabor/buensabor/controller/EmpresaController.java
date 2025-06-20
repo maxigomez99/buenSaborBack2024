@@ -35,42 +35,34 @@ public class EmpresaController {
         }
     }
 
-  @PostMapping("/crear-con-imagen")
-public ResponseEntity<?> crearEmpresaConImagen(@RequestBody EmpresaDto empresaDTO) {
-    try {
-        // Log para verificar los parámetros recibidos
-        System.out.println("Nombre recibido: " + empresaDTO.getNombre());
-        System.out.println("Razón Social recibida: " + empresaDTO.getRazonSocial());
-        System.out.println("CUIL recibido: " + empresaDTO.getCuil());
-        System.out.println("Imagen Base64 recibida: " + empresaDTO.getImagen());
+    @PostMapping("/crear-con-imagen")
+    public ResponseEntity<?> crearEmpresaConImagen(@RequestBody EmpresaDto empresaDTO) {
+        try {
+            System.out.println("Nombre recibido: " + empresaDTO.getNombre());
+            System.out.println("Razón Social recibida: " + empresaDTO.getRazonSocial());
+            System.out.println("CUIL recibido: " + empresaDTO.getCuil());
+            System.out.println("Imagen Base64 recibida: " + empresaDTO.getImagen());
 
-        // Validar y agregar el prefijo adecuado al Base64
-        String base64Imagen = empresaDTO.getImagen();
-        if (!base64Imagen.startsWith("data:image/")) {
-            // Detectar el tipo de imagen (por ejemplo, JPEG, PNG)
-            String tipoImagen = "jpeg"; // Por defecto, se asume JPEG
-            if (base64Imagen.contains("iVBORw0KGgo")) { // Identificador de PNG
-                tipoImagen = "png";
-            }
-            base64Imagen = "data:image/" + tipoImagen + ";base64," + base64Imagen;
+
+
+
+
+            // Guardamos en la base de datos el string completo
+            Empresa empresa = Empresa.builder()
+                    .nombre(empresaDTO.getNombre())
+                    .razonSocial(empresaDTO.getRazonSocial())
+                    .cuil(empresaDTO.getCuil())
+                    .imagen(empresaDTO.getImagen()) // Base64 completo con encabezado
+                    .build();
+
+            Empresa nuevaEmpresa = empresaService.save(empresa);
+
+            return ResponseEntity.ok(nuevaEmpresa);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al crear la empresa: " + e.getMessage());
         }
-
-        // Crear la entidad Empresa y asociar el Base64 directamente
-        Empresa empresa = Empresa.builder()
-                .nombre(empresaDTO.getNombre())
-                .razonSocial(empresaDTO.getRazonSocial())
-                .cuil(empresaDTO.getCuil())
-                .imagen(base64Imagen) // Guardar el Base64 con el prefijo
-                .build();
-
-        // Guardar la empresa en la base de datos
-        Empresa nuevaEmpresa = empresaService.save(empresa);
-
-        return ResponseEntity.ok(nuevaEmpresa);
-    } catch (Exception e) {
-        return ResponseEntity.badRequest().body("Error al crear la empresa: " + e.getMessage());
     }
-}
 
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){

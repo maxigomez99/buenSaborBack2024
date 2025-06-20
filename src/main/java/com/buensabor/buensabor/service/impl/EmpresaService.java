@@ -30,10 +30,7 @@ public class EmpresaService implements IEmpresaService {
                 throw new Exception("Ya existe una empresa con el nombre proporcionado");
             }
 
-            if (empresa.getImagen() != null) {
-                String rutaImagen = funcionalidades.guardarImagen(empresa.getImagen(), UUID.randomUUID().toString() + ".jpg");
-                empresa.setImagen(rutaImagen);
-            }
+            // Ya no se guarda archivo, se mantiene el base64 como está
             return empresaRepository.save(empresa);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
