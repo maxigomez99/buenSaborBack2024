@@ -30,7 +30,7 @@ public class DataInitializer {
     @Autowired
     private IPaisRepository paisRepository;
 
-//    @PostConstruct
+    @PostConstruct
     public void initData() {
         Optional<Pais> paisOptional = paisRepository.findByNombre("Argentina");
         Pais argentina = paisOptional.orElseGet(() -> {
