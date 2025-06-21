@@ -175,7 +175,7 @@ public Sucursal guardarSucursalDto(SucursalDto sucursalDto) throws Exception {
 
         // Create and save the Domicilio entity
         Domicilio domicilio = new Domicilio();
-        domicilio.setLocalidad(localidad);
+        domicilio.setLocalidad(localidad); // Reference the existing Localidad
         domicilio.setCalle(sucursalDto.getCalle());
         domicilio.setNumero(Integer.valueOf(sucursalDto.getNumero()));
         domicilio.setCp(Integer.valueOf(sucursalDto.getCp()));
