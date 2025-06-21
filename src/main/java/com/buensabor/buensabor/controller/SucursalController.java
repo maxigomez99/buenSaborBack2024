@@ -2,8 +2,11 @@ package com.buensabor.buensabor.controller;
 
 import com.buensabor.buensabor.dto.sucursal.SucursalDto;
 import com.buensabor.buensabor.entities.Domicilio;
+import com.buensabor.buensabor.entities.Empresa;
 import com.buensabor.buensabor.entities.Localidad;
 import com.buensabor.buensabor.entities.Sucursal;
+import com.buensabor.buensabor.repository.IEmpresaRepository;
+import com.buensabor.buensabor.repository.ILocalidadRepository;
 import com.buensabor.buensabor.service.ISucursalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,37 +18,45 @@ import org.springframework.web.bind.annotation.*;
 public class SucursalController {
     @Autowired
     private ISucursalService sucursalService;
+    @Autowired
+    private ILocalidadRepository localidadRepository;
+    @Autowired
+    private IEmpresaRepository empresaRepository;
 
-    //crear sucursal
     @PostMapping("/crear-con-imagen")
-
     public ResponseEntity<?> crearSucursalConImagen(@RequestBody SucursalDto sucursalDto) {
         try {
-            // Map Domicilio data
+            // 🔥 Referencia a la Localidad existente
+            Localidad localidad = localidadRepository.getReferenceById(sucursalDto.getIdLocalidad());
+
+            Empresa empresa = empresaRepository.getReferenceById(sucursalDto.getIdEmpresa());
+
             Domicilio domicilio = Domicilio.builder()
                     .calle(sucursalDto.getCalle())
                     .numero(Integer.parseInt(sucursalDto.getNumero()))
                     .cp(Integer.parseInt(sucursalDto.getCp()))
-                    .localidad(Localidad.builder().nombre(sucursalDto.getIdLocalidad().toString()).build()) // Ejemplo ajustado // Example mapping
+                    .piso(sucursalDto.getPiso())
+                    .numeroDepto(sucursalDto.getNroDepto())
+                    .localidad(localidad) // 🔁 asociar entidad gestionada
                     .build();
 
-            // Map Sucursal data
             Sucursal sucursal = Sucursal.builder()
                     .nombre(sucursalDto.getNombre())
                     .horarioApertura(sucursalDto.getHorarioApertura())
                     .horarioCierre(sucursalDto.getHorarioCierre())
-                    .domicilio(domicilio) // Set Domicilio
-                    .imagen(sucursalDto.getImagen()) // Base64 image
+                    .empresa(empresa)
+                    .domicilio(domicilio)
+                    .imagen(sucursalDto.getImagen())
                     .build();
 
             Sucursal nuevaSucursal = sucursalService.save(sucursal);
-
             return ResponseEntity.ok(nuevaSucursal);
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al crear la sucursal: " + e.getMessage());
         }
     }
+
 
     //region CRUD Basico
     @GetMapping("/traer-todo/")
