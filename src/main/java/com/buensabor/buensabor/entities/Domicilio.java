@@ -1,9 +1,6 @@
 package com.buensabor.buensabor.entities;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.util.List;
@@ -22,7 +19,8 @@ public class Domicilio extends Base {
     private String piso;
     private String numeroDepto  ;
 
-    @ManyToOne()
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_localidad")
     private Localidad localidad;
 
 //    @ManyToMany(mappedBy = "domicilios")
