@@ -23,46 +23,5 @@ public class PaisController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id){
-        try {
-            return ResponseEntity.ok(paisService.buscarPorId(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-    @PostMapping("/")
-    public ResponseEntity<?> cargar(@RequestBody Pais pais){
-        try {
-            return ResponseEntity.ok(paisService.guardar(pais));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id,@RequestBody Pais pais){
-        try {
-            return ResponseEntity.ok(paisService.modificar(id, pais));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable Long id){
-        try {
-            return ResponseEntity.ok(paisService.eliminar(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-    @PostMapping("/reactivate/{id}")
-    public ResponseEntity<?> reactivar(@PathVariable Long id){
-        try {
-            return ResponseEntity.ok(paisService.reactivar(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 }
