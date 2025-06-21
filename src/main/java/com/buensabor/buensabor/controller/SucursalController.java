@@ -1,6 +1,9 @@
 package com.buensabor.buensabor.controller;
 
 import com.buensabor.buensabor.dto.sucursal.SucursalDto;
+import com.buensabor.buensabor.entities.Domicilio;
+import com.buensabor.buensabor.entities.Localidad;
+import com.buensabor.buensabor.entities.Sucursal;
 import com.buensabor.buensabor.service.ISucursalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,37 @@ import org.springframework.web.bind.annotation.*;
 public class SucursalController {
     @Autowired
     private ISucursalService sucursalService;
+
+    //crear sucursal
+    @PostMapping("/crear-con-imagen")
+
+    public ResponseEntity<?> crearSucursalConImagen(@RequestBody SucursalDto sucursalDto) {
+        try {
+            // Map Domicilio data
+            Domicilio domicilio = Domicilio.builder()
+                    .calle(sucursalDto.getCalle())
+                    .numero(Integer.parseInt(sucursalDto.getNumero()))
+                    .cp(Integer.parseInt(sucursalDto.getCp()))
+                    .localidad(Localidad.builder().nombre(sucursalDto.getLocalidad()).build()) // Example mapping
+                    .build();
+
+            // Map Sucursal data
+            Sucursal sucursal = Sucursal.builder()
+                    .nombre(sucursalDto.getNombre())
+                    .horarioApertura(sucursalDto.getHorarioApertura())
+                    .horarioCierre(sucursalDto.getHorarioCierre())
+                    .domicilio(domicilio) // Set Domicilio
+                    .imagen(sucursalDto.getImagen()) // Base64 image
+                    .build();
+
+            Sucursal nuevaSucursal = sucursalService.save(sucursal);
+
+            return ResponseEntity.ok(nuevaSucursal);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al crear la sucursal: " + e.getMessage());
+        }
+    }
 
     //region CRUD Basico
     @GetMapping("/traer-todo/")
