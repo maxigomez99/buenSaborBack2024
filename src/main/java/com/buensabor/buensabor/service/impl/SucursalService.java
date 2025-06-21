@@ -162,47 +162,43 @@ public class SucursalService implements ISucursalService {
         }
     }
 
-    @Override
-    public Sucursal guardarSucursalDto(SucursalDto sucursalDto) throws Exception {
-        try {
+  @Override
+public Sucursal guardarSucursalDto(SucursalDto sucursalDto) throws Exception {
+    try {
+        // Fetch the Empresa entity
+        Empresa empresa = empresaRepository.findById(Long.valueOf(sucursalDto.getIdEmpresa()))
+                .orElseThrow(() -> new Exception("No se encontró la empresa con el id proporcionado"));
 
-            Empresa empresa = empresaRepository.findById(Long.valueOf(String.valueOf(sucursalDto.getIdEmpresa()))).orElseThrow(() -> new Exception("No se encontró la empresa con el id proporcionado"));
-            Localidad localidad = localidadRepository.findById(sucursalDto.getIdLocalidad())
-                    .orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
+        // Fetch or save the Localidad entity
+        Localidad localidad = localidadRepository.findById(sucursalDto.getIdLocalidad())
+                .orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
 
-            //Provincia provincia = provinciaRepository.findById(Long.valueOf(sucursalDto.getProvincia())).orElseThrow(() -> new Exception("No se encontró la provincia con el id proporcionado"));
-//            Pais pais = paisRepository.findById(Long.valueOf(sucursalDto.getPais())).orElseThrow(() -> new Exception("No se encontró el país con el id proporcionado"));
-            Domicilio domicilio = new Domicilio();
-            Sucursal sucursal = new Sucursal();
+        // Create and save the Domicilio entity
+        Domicilio domicilio = new Domicilio();
+        domicilio.setLocalidad(localidad);
+        domicilio.setCalle(sucursalDto.getCalle());
+        domicilio.setNumero(Integer.valueOf(sucursalDto.getNumero()));
+        domicilio.setCp(Integer.valueOf(sucursalDto.getCp()));
+        domicilioRepository.save(domicilio);
 
+        // Create and save the Sucursal entity
+        Sucursal sucursal = new Sucursal();
+        sucursal.setEmpresa(empresa);
+        sucursal.setNombre(sucursalDto.getNombre());
+        sucursal.setHorarioApertura(sucursalDto.getHorarioApertura());
+        sucursal.setHorarioCierre(sucursalDto.getHorarioCierre());
+        sucursal.setDomicilio(domicilio);
 
-//            provincia.setPais(pais);
-//            localidad.setProvincia(provincia);
-            domicilio.setLocalidad(localidad);
-            sucursal.setEmpresa(empresa);
-
-            domicilio.setCalle(sucursalDto.getCalle());
-            domicilio.setNumero(Integer.valueOf(sucursalDto.getNumero()));
-            domicilio.setCp(Integer.valueOf(sucursalDto.getCp()));
-            domicilioRepository.save(domicilio);
-
-            sucursal.setNombre(sucursalDto.getNombre());
-            sucursal.setHorarioApertura(sucursalDto.getHorarioApertura());
-            sucursal.setHorarioCierre(sucursalDto.getHorarioCierre());
-            sucursal.setDomicilio(domicilio);
-
-            if (sucursalDto.getImagen() != null) {
-                String rutaImagen = funcionalidades.guardarImagen(sucursalDto.getImagen(), UUID.randomUUID().toString() + ".jpg");
-                sucursal.setImagen(rutaImagen);
-            }
-
-            return sucursalRepository.save(sucursal);
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+        // Handle the image if provided
+        if (sucursalDto.getImagen() != null && !sucursalDto.getImagen().isEmpty()) {
+            sucursal.setImagen(sucursalDto.getImagen());
         }
+
+        return sucursalRepository.save(sucursal);
+    } catch (Exception e) {
+        throw new Exception("Error al guardar la sucursal: " + e.getMessage());
     }
-
-
+}
     public List<Sucursal> obtenerSucursalesActivas() throws Exception {
         try {
             return sucursalRepository.findByEliminadoFalse();
