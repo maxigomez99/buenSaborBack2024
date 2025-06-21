@@ -26,36 +26,13 @@ public class SucursalController {
     @PostMapping("/crear-con-imagen")
     public ResponseEntity<?> crearSucursalConImagen(@RequestBody SucursalDto sucursalDto) {
         try {
-            // 🔥 Referencia a la Localidad existente
-            Localidad localidad = localidadRepository.getReferenceById(sucursalDto.getIdLocalidad());
-
-            Empresa empresa = empresaRepository.getReferenceById(sucursalDto.getIdEmpresa());
-
-            Domicilio domicilio = Domicilio.builder()
-                    .calle(sucursalDto.getCalle())
-                    .numero(Integer.parseInt(sucursalDto.getNumero()))
-                    .cp(Integer.parseInt(sucursalDto.getCp()))
-                    .piso(sucursalDto.getPiso())
-                    .numeroDepto(sucursalDto.getNroDepto())
-                    .localidad(localidad) // 🔁 asociar entidad gestionada
-                    .build();
-
-            Sucursal sucursal = Sucursal.builder()
-                    .nombre(sucursalDto.getNombre())
-                    .horarioApertura(sucursalDto.getHorarioApertura())
-                    .horarioCierre(sucursalDto.getHorarioCierre())
-                    .empresa(empresa)
-                    .domicilio(domicilio)
-                    .imagen(sucursalDto.getImagen())
-                    .build();
-
-            Sucursal nuevaSucursal = sucursalService.save(sucursal);
+            Sucursal nuevaSucursal = sucursalService.guardarSucursalDto(sucursalDto);
             return ResponseEntity.ok(nuevaSucursal);
-
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al crear la sucursal: " + e.getMessage());
         }
     }
+
 
 
     //region CRUD Basico
