@@ -19,4 +19,6 @@ public class SucursalDto extends BaseDto {
     private Long  idLocalidad;
     private Long idEmpresa; // Cambiado a Long para que coincida con el tipo de dato en la entidad Empresa
     private String imagen;
+
+
 }

@@ -162,14 +162,14 @@ public class SucursalService implements ISucursalService {
         }
     }
 
-  @Override
+@Override
 public Sucursal guardarSucursalDto(SucursalDto sucursalDto) throws Exception {
     try {
         // Fetch the Empresa entity
-        Empresa empresa = empresaRepository.findById(Long.valueOf(sucursalDto.getIdEmpresa()))
+        Empresa empresa = empresaRepository.findById(sucursalDto.getIdEmpresa())
                 .orElseThrow(() -> new Exception("No se encontró la empresa con el id proporcionado"));
 
-        // Fetch or save the Localidad entity
+        // Fetch the Localidad entity using the idLocalidad
         Localidad localidad = localidadRepository.findById(sucursalDto.getIdLocalidad())
                 .orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
 
