@@ -29,22 +29,24 @@ public class SucursalService implements ISucursalService {
     @Autowired
     private Funcionalidades funcionalidades;
     @Override
-    public Sucursal save(Sucursal sucursal) throws Exception {
-        try {
-
-            if (sucursalRepository.findByNombre(sucursal.getNombre())){
-                throw new Exception("Ya existe una sucursal con el nombre proporcionado");
-            }
-            if (sucursal.getImagen() != null) {
-                String rutaImagen = funcionalidades.guardarImagen(sucursal.getImagen(), UUID.randomUUID().toString() + ".jpg");
-                sucursal.setImagen(rutaImagen);
-            }
-            return sucursalRepository.save(sucursal);
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+   public Sucursal save(Sucursal sucursal) throws Exception {
+    try {
+        // Check if a Sucursal with the same name already exists
+        if (sucursalRepository.findByNombre(sucursal.getNombre())) {
+            throw new Exception("Ya existe una sucursal con el nombre proporcionado");
         }
-    }
 
+        // Validate and set the Base64 image directly
+        if (sucursal.getImagen() != null && !sucursal.getImagen().isEmpty()) {
+            sucursal.setImagen(sucursal.getImagen());
+        }
+
+        // Save the Sucursal entity to the database
+        return sucursalRepository.save(sucursal);
+    } catch (Exception e) {
+        throw new Exception(e.getMessage());
+    }
+}
     @Override
     public boolean delete(Long id) throws Exception {
         try {
