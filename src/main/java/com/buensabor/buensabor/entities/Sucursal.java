@@ -24,6 +24,6 @@ public class Sucursal extends Base {
 
   @Lob
   @Column(columnDefinition = "LONGTEXT")
-  private String imagen;it
+  private String imagen;
 
 }
