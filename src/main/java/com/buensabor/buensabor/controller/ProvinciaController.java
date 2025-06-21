@@ -22,6 +22,14 @@ public class ProvinciaController {
         return provinciaService.getProvinciaByPaisId(paisId);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(provinciaService.buscarPorId(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 
 }

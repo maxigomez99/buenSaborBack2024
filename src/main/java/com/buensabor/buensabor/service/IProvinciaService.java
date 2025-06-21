@@ -6,6 +6,6 @@ public interface IProvinciaService {
 
 
     public List<Provincia> getProvinciaByPaisId(Long paisId);
-
+    public Provincia buscarPorId(Long id) throws Exception;
 
 }

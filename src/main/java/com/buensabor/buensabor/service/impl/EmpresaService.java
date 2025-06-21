@@ -36,30 +36,33 @@ public class EmpresaService implements IEmpresaService {
             throw new Exception(e.getMessage());
         }
     }
+
     @Override
     public Empresa update(Long id, Empresa empresa) throws Exception {
         try {
-            if (empresaRepository.existsByNombreAndNotId(empresa.getNombre(), id)) {
-                throw new Exception("Ya existe una empresa con el CUIL proporcionado");
-            }
-            Empresa existingEmpresa = empresaRepository.findById(id).orElse(null);
-            empresa.setId(id);
+            Empresa existingEmpresa = empresaRepository.findById(id)
+                    .orElseThrow(() -> new Exception("No se encontró la empresa"));
 
-            if (empresa.getImagen() != null ) {
-                // Eliminar la imagen antigua
-                if(existingEmpresa.getImagen() != null){
-                    funcionalidades.eliminarImagen(existingEmpresa.getImagen());
-                }
-                // Guardar la nueva imagen
-                String rutaImagen = funcionalidades.guardarImagen(empresa.getImagen(), UUID.randomUUID().toString() + ".jpg");
-                existingEmpresa.setImagen(rutaImagen);
-                empresa.setImagen(rutaImagen);
-            }else {
-                empresa.setImagen(existingEmpresa.getImagen());
+            // Validar nombre
+            Empresa otraConMismoNombre = empresaRepository.findByNombre(empresa.getNombre());
+            if (otraConMismoNombre != null && !otraConMismoNombre.getId().equals(id)) {
+                throw new Exception("Ya existe una empresa con el mismo nombre");
             }
 
+            // Ya validaste el CUIL en el controller, no lo repitas acá
 
-            return empresaRepository.save(empresa);
+            // Actualizar campos
+            existingEmpresa.setNombre(empresa.getNombre());
+            existingEmpresa.setRazonSocial(empresa.getRazonSocial());
+            existingEmpresa.setCuil(empresa.getCuil());
+
+            // Actualizar imagen solo si se recibe una nueva (en base64)
+            if (empresa.getImagen() != null && !empresa.getImagen().isEmpty()) {
+                existingEmpresa.setImagen(empresa.getImagen());
+            }
+
+            return empresaRepository.save(existingEmpresa);
+
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -131,4 +134,8 @@ public class EmpresaService implements IEmpresaService {
             throw new Exception(e.getMessage());
         }
     }
+    public Empresa buscarPorCuil(Long cuil) {
+        return empresaRepository.findByCuil(cuil);
+    }
+
 }

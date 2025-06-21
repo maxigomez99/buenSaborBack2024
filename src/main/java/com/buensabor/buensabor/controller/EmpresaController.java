@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+
 
 @RestController
 @RequestMapping("/api/empresa")
@@ -38,16 +40,7 @@ public class EmpresaController {
     @PostMapping("/crear-con-imagen")
     public ResponseEntity<?> crearEmpresaConImagen(@RequestBody EmpresaDto empresaDTO) {
         try {
-            System.out.println("Nombre recibido: " + empresaDTO.getNombre());
-            System.out.println("Razón Social recibida: " + empresaDTO.getRazonSocial());
-            System.out.println("CUIL recibido: " + empresaDTO.getCuil());
-            System.out.println("Imagen Base64 recibida: " + empresaDTO.getImagen());
-
-
-
-
-
-            // Guardamos en la base de datos el string completo
+           // Guardamos en la base de datos el string completo
             Empresa empresa = Empresa.builder()
                     .nombre(empresaDTO.getNombre())
                     .razonSocial(empresaDTO.getRazonSocial())
@@ -63,6 +56,63 @@ public class EmpresaController {
             return ResponseEntity.badRequest().body("Error al crear la empresa: " + e.getMessage());
         }
     }
+    @PutMapping("/editar-con-imagen/{id}")
+    public ResponseEntity<?> editarEmpresaConImagen(@PathVariable Long id, @RequestBody EmpresaDto empresaDTO) {
+        try {
+            Empresa empresaExistente = empresaService.traerPorId(id);
+
+            if (empresaExistente == null) {
+                return ResponseEntity.badRequest().body("No se encontró la empresa con el ID proporcionado.");
+            }
+
+//            System.out.println("====== EDICIÓN EMPRESA ======");
+//            System.out.println("ID actual: " + id);
+//            System.out.println("CUIL en BD: " + empresaExistente.getCuil());
+//            System.out.println("CUIL recibido: " + empresaDTO.getCuil());
+
+            boolean cuilModificado = !Objects.equals(empresaDTO.getCuil(), empresaExistente.getCuil());
+//            System.out.println("¿CUIL modificado? " + cuilModificado);
+
+            if (cuilModificado) {
+                Empresa empresaConMismoCuil = empresaService.buscarPorCuil(empresaDTO.getCuil());
+
+                if (empresaConMismoCuil != null) {
+//                    System.out.println("Empresa encontrada por ese CUIL: ID = " + empresaConMismoCuil.getId());
+
+                    if (!Objects.equals(empresaConMismoCuil.getId(), empresaExistente.getId())) {
+                        System.out.println("ERROR: El CUIL pertenece a otra empresa.");
+                        return ResponseEntity.badRequest().body("Ya existe una empresa con el mismo CUIL.");
+                    } else {
+                        System.out.println("CUIL pertenece a la misma empresa. ✅ OK");
+                    }
+                }
+
+                empresaExistente.setCuil(empresaDTO.getCuil());
+            } else {
+                System.out.println("CUIL no fue modificado, se salta la validación.");
+            }
+
+            // Actualizar los demás campos
+            empresaExistente.setNombre(empresaDTO.getNombre());
+            empresaExistente.setRazonSocial(empresaDTO.getRazonSocial());
+            empresaExistente.setImagen(empresaDTO.getImagen());
+
+            Empresa empresaActualizada = empresaService.update(id, empresaExistente);
+
+            System.out.println("Empresa actualizada correctamente. ✅");
+            return ResponseEntity.ok(empresaActualizada);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error al editar la empresa: " + e.getMessage());
+        }
+    }
+
+
+
+
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){
@@ -82,14 +132,7 @@ public class EmpresaController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id,@RequestBody Empresa empresa){
-        try {
-            return ResponseEntity.ok(empresaService.update(id, empresa));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteById(@PathVariable Long id){
         try {

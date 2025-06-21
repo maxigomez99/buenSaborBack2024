@@ -41,4 +41,8 @@ public class ProvinciaService implements IProvinciaService {
             provinciaRepository.saveAll(provincias);
         }
     }
+    @Override
+    public Provincia buscarPorId(Long id) throws Exception {
+        return provinciaRepository.findById(id).orElseThrow(() -> new Exception("Provincia no encontrada con ID: " + id));
+    }
 }
