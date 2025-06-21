@@ -29,10 +29,10 @@ public class SucursalService implements ISucursalService {
     @Autowired
     private Funcionalidades funcionalidades;
     @Override
-   public Sucursal save(Sucursal sucursal) throws Exception {
+  public Sucursal save(Sucursal sucursal) throws Exception {
     try {
         // Check if a Sucursal with the same name already exists
-        if (sucursalRepository.findByNombre(sucursal.getNombre())) {
+        if (sucursalRepository.existsByNombre(sucursal.getNombre())) {
             throw new Exception("Ya existe una sucursal con el nombre proporcionado");
         }
 
@@ -44,7 +44,7 @@ public class SucursalService implements ISucursalService {
         // Save the Sucursal entity to the database
         return sucursalRepository.save(sucursal);
     } catch (Exception e) {
-        throw new Exception(e.getMessage());
+        throw new Exception("Error al guardar la sucursal: " + e.getMessage());
     }
 }
     @Override
