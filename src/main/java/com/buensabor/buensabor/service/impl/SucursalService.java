@@ -67,9 +67,10 @@ public class SucursalService implements ISucursalService {
         try {
 
             Sucursal sucursalExistente = sucursalRepository.findById(id).orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
-            Localidad localidadActualizada = localidadRepository.findById(Long.valueOf(sucursalDto.getLocalidad())).orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
-            Provincia provincia = provinciaRepository.findById(Long.valueOf(sucursalDto.getProvincia())).orElseThrow(() -> new Exception("No se encontró la provincia con el id proporcionado"));
-            Pais pais = paisRepository.findById(Long.valueOf(sucursalDto.getPais())).orElseThrow(() -> new Exception("No se encontró el país con el id proporcionado"));
+            Localidad localidadActualizada = localidadRepository.findById(sucursalDto.getIdLocalidad())
+                    .orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
+//            Provincia provincia = provinciaRepository.findById(Long.valueOf(sucursalDto.getProvincia())).orElseThrow(() -> new Exception("No se encontró la provincia con el id proporcionado"));
+//            Pais pais = paisRepository.findById(Long.valueOf(sucursalDto.getPais())).orElseThrow(() -> new Exception("No se encontró el país con el id proporcionado"));
 
             // Verificar si existe otra sucursal con el mismo nombre pero diferente ID
             if(sucursalRepository.existsByNombreAndNotId(sucursalDto.getNombre(), id)){
@@ -83,8 +84,8 @@ public class SucursalService implements ISucursalService {
             sucursalExistente.setHorarioCierre(sucursalDto.getHorarioCierre());
 
 
-            sucursalExistente.getDomicilio().getLocalidad().getProvincia().setPais(pais);
-            sucursalExistente.getDomicilio().getLocalidad().setProvincia(provincia);
+//            sucursalExistente.getDomicilio().getLocalidad().getProvincia().setPais(pais);
+//            sucursalExistente.getDomicilio().getLocalidad().setProvincia(provincia);
             sucursalExistente.getDomicilio().setLocalidad(localidadActualizada);
             sucursalExistente.getDomicilio().setNumero(Integer.valueOf(sucursalDto.getNumero()));
             sucursalExistente.getDomicilio().setCalle(sucursalDto.getCalle());
@@ -164,15 +165,17 @@ public class SucursalService implements ISucursalService {
         try {
 
             Empresa empresa = empresaRepository.findById(Long.valueOf(String.valueOf(sucursalDto.getIdEmpresa()))).orElseThrow(() -> new Exception("No se encontró la empresa con el id proporcionado"));
-            Localidad localidad = localidadRepository.findById(Long.valueOf(sucursalDto.getLocalidad())).orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
-            Provincia provincia = provinciaRepository.findById(Long.valueOf(sucursalDto.getProvincia())).orElseThrow(() -> new Exception("No se encontró la provincia con el id proporcionado"));
-            Pais pais = paisRepository.findById(Long.valueOf(sucursalDto.getPais())).orElseThrow(() -> new Exception("No se encontró el país con el id proporcionado"));
+            Localidad localidad = localidadRepository.findById(sucursalDto.getIdLocalidad())
+                    .orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
+
+            //Provincia provincia = provinciaRepository.findById(Long.valueOf(sucursalDto.getProvincia())).orElseThrow(() -> new Exception("No se encontró la provincia con el id proporcionado"));
+//            Pais pais = paisRepository.findById(Long.valueOf(sucursalDto.getPais())).orElseThrow(() -> new Exception("No se encontró el país con el id proporcionado"));
             Domicilio domicilio = new Domicilio();
             Sucursal sucursal = new Sucursal();
 
 
-            provincia.setPais(pais);
-            localidad.setProvincia(provincia);
+//            provincia.setPais(pais);
+//            localidad.setProvincia(provincia);
             domicilio.setLocalidad(localidad);
             sucursal.setEmpresa(empresa);
 

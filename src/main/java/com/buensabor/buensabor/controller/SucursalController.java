@@ -26,7 +26,7 @@ public class SucursalController {
                     .calle(sucursalDto.getCalle())
                     .numero(Integer.parseInt(sucursalDto.getNumero()))
                     .cp(Integer.parseInt(sucursalDto.getCp()))
-                    .localidad(Localidad.builder().nombre(sucursalDto.getLocalidad()).build()) // Example mapping
+                    .localidad(Localidad.builder().nombre(sucursalDto.getIdLocalidad().toString()).build()) // Ejemplo ajustado // Example mapping
                     .build();
 
             // Map Sucursal data
