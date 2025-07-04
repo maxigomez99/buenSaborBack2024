@@ -3,11 +3,9 @@ package com.buensabor.buensabor.service;
 import com.buensabor.buensabor.entities.Provincia;
 import java.util.List;
 public interface IProvinciaService {
-    public Boolean eliminar(Long id) throws Exception;
-    public Provincia guardar(Provincia entity) throws Exception;
-    public Provincia modificar(Long id, Provincia entity) throws Exception;
+
+
+    public List<Provincia> getProvinciaByPaisId(Long paisId);
     public Provincia buscarPorId(Long id) throws Exception;
-    public List<Provincia> buscarTodos() throws Exception;
-    public Boolean reactivar(Long id) throws Exception;
 
 }

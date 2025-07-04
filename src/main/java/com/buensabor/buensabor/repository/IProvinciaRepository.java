@@ -9,4 +9,5 @@ import java.util.List;
 
 @Repository
 public interface IProvinciaRepository extends JpaRepository<Provincia, Long> {
+    List<Provincia> findByPaisId(Long paisId);
 }

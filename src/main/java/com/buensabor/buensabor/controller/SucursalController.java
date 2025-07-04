@@ -1,6 +1,12 @@
 package com.buensabor.buensabor.controller;
 
 import com.buensabor.buensabor.dto.sucursal.SucursalDto;
+import com.buensabor.buensabor.entities.Domicilio;
+import com.buensabor.buensabor.entities.Empresa;
+import com.buensabor.buensabor.entities.Localidad;
+import com.buensabor.buensabor.entities.Sucursal;
+import com.buensabor.buensabor.repository.IEmpresaRepository;
+import com.buensabor.buensabor.repository.ILocalidadRepository;
 import com.buensabor.buensabor.service.ISucursalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +18,22 @@ import org.springframework.web.bind.annotation.*;
 public class SucursalController {
     @Autowired
     private ISucursalService sucursalService;
+    @Autowired
+    private ILocalidadRepository localidadRepository;
+    @Autowired
+    private IEmpresaRepository empresaRepository;
+
+    @PostMapping("/crear-con-imagen")
+    public ResponseEntity<?> crearSucursalConImagen(@RequestBody SucursalDto sucursalDto) {
+        try {
+            Sucursal nuevaSucursal = sucursalService.guardarSucursalDto(sucursalDto);
+            return ResponseEntity.ok(nuevaSucursal);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al crear la sucursal: " + e.getMessage());
+        }
+    }
+
+
 
     //region CRUD Basico
     @GetMapping("/traer-todo/")

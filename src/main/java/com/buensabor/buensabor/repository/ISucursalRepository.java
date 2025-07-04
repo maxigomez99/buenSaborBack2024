@@ -13,10 +13,12 @@ public interface ISucursalRepository extends JpaRepository<Sucursal, Long> {
 
     List<Sucursal> findByEmpresaIdAndEliminadoFalse(Long empresaId);
     List<Sucursal> findByEmpresaId(Long empresaId);
-    boolean findByNombre(String nombre);
+
+    // Corrected method to check existence by name
+    @Query("SELECT COUNT(s) > 0 FROM Sucursal s WHERE s.nombre = :nombre")
+    boolean existsByNombre(@Param("nombre") String nombre);
+
     boolean existsByIdAndEliminadoFalse(long id);
-
-
 
     List<Sucursal> findByEliminadoFalse();
 
