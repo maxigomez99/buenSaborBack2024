@@ -37,6 +37,13 @@ public class EmpresaController {
         }
     }
 
+    //---------------------------------------//
+    // En un controlador cualquiera
+    @GetMapping("/api/protegido")
+    public ResponseEntity<String> protegido() {
+        return ResponseEntity.ok("✅ Accediste a un endpoint protegido con Auth0");
+    }
+
     @PostMapping("/crear-con-imagen")
     public ResponseEntity<?> crearEmpresaConImagen(@RequestBody EmpresaDto empresaDTO) {
         try {
