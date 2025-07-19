@@ -21,6 +21,8 @@ public class Sucursal extends Base {
     private Empresa empresa;
     @OneToOne(cascade = CascadeType.PERSIST)
     private Domicilio domicilio;
+
+    @Column(columnDefinition = "LONGTEXT")
     private String imagen;
 
 }

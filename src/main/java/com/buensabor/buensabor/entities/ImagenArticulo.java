@@ -3,9 +3,6 @@ package com.buensabor.buensabor.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -14,11 +11,15 @@ import java.util.List;
 @Getter
 @ToString
 @SuperBuilder
-public class UnidadMedida extends Base {
+public class ImagenArticulo extends Base {
 
     private String denominacion;
 
-    @OneToMany(mappedBy = "unidadMedida")
-    @JsonIgnore
-    private List<ArticuloInsumo> articulosInsumo;
+    @ManyToOne
+    @JoinColumn(name = "articulo_id")
+    private Articulo articulo;
+
+    @ManyToOne
+    @JoinColumn(name = "articulo_manufacturado_id")
+    private ArticuloManufacturado articuloManufacturado;
 }
