@@ -440,9 +440,9 @@ public class CategoriaService implements ICategoriaService {
 
         Categoria categoria = new Categoria();
 
-        if (categoriaEmpresaDto.getUrlIcono() != null) {
-            String rutaImagen = funcionalidades.guardarImagen(categoriaEmpresaDto.getUrlIcono(), UUID.randomUUID().toString() + ".jpg");
-            categoria.setUrlIcono(rutaImagen);
+        if (categoriaEmpresaDto.getUrlIcono() != null && !categoriaEmpresaDto.getUrlIcono().isEmpty()) {
+            // Guardar directamente el base64 en la base de datos
+            categoria.setUrlIcono(categoriaEmpresaDto.getUrlIcono());
         }
 
         categoria.setDenominacion(categoriaEmpresaDto.getDenominacion());
@@ -451,7 +451,7 @@ public class CategoriaService implements ICategoriaService {
         return categoriaRepository.save(categoria);
     }
 
-    public CategoriaDto actualizarDenominacion(Long id, String nuevaDenominacion,String imagen64) throws IOException {
+    public CategoriaDto actualizarDenominacion(Long id, String nuevaDenominacion, String imagen64) throws IOException {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
 
@@ -461,14 +461,9 @@ public class CategoriaService implements ICategoriaService {
             throw new IllegalArgumentException("Ya existe otra categoría con el mismo nombre en esta empresa.");
         }
 
-        if (imagen64 != null ) {
-            // Eliminar la imagen antigua
-            if(categoria.getUrlIcono() != null){
-                funcionalidades.eliminarImagen(categoria.getUrlIcono());
-            }
-            // Guardar la nueva imagen
-            String rutaImagen = funcionalidades.guardarImagen(imagen64, UUID.randomUUID().toString() + ".jpg");
-            categoria.setUrlIcono(rutaImagen);
+        if (imagen64 != null && !imagen64.isEmpty()) {
+            // Guardar la imagen directamente en base64
+            categoria.setUrlIcono(imagen64);
         }
 
         categoria.setDenominacion(nuevaDenominacion);
@@ -505,15 +500,13 @@ public class CategoriaService implements ICategoriaService {
 
         Categoria subCategoria = new Categoria();
 
-        if (subCategoriaDTO.getUrlIcono() != null) {
-            String rutaImagen = funcionalidades.guardarImagen(subCategoriaDTO.getUrlIcono(), UUID.randomUUID().toString() + ".jpg");
-            subCategoria.setUrlIcono(rutaImagen);
+        if (subCategoriaDTO.getUrlIcono() != null && !subCategoriaDTO.getUrlIcono().isEmpty()) {
+            // Guardar la imagen directamente en base64
+            subCategoria.setUrlIcono(subCategoriaDTO.getUrlIcono());
         }
 
         subCategoria.setDenominacion(subCategoriaDTO.getDenominacion());
         subCategoria.setCategoriaPadre(categoriaPadre);
-
-
         subCategoria.setEmpresa(categoriaPadre.getEmpresa());
 
         categoriaPadre.agregarSubCategoria(subCategoria);
@@ -524,8 +517,6 @@ public class CategoriaService implements ICategoriaService {
         dto.setId(subCategoria.getId());
         dto.setDenominacion(subCategoria.getDenominacion());
         dto.setUrlIcono(subCategoria.getUrlIcono());
-
-
 
         return dto;
     }
