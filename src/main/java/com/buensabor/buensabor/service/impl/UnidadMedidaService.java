@@ -48,6 +48,11 @@ public class UnidadMedidaService implements IUnidadMedidaService {
     @Override
     public boolean delete(Long id) {
         if(unidadMedidaRepository.existsById(id)) {
+            // Verificar si la unidad de medida está siendo utilizada por algún artículo
+            if(unidadMedidaRepository.isUsedByAnyArticulo(id)) {
+                throw new RuntimeException("No se puede eliminar la unidad de medida porque está siendo utilizada por uno o más artículos");
+            }
+
             unidadMedidaRepository.deleteById(id);
             return true;
         }
