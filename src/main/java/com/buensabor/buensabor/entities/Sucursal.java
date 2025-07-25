@@ -22,8 +22,9 @@ public class Sucursal extends Base {
     @OneToOne(cascade = CascadeType.PERSIST)
     private Domicilio domicilio;
 
-  @Lob
-  @Column(columnDefinition = "LONGTEXT")
-  private String imagen;
+
+    @Column(columnDefinition = "LONGTEXT")
+    private String imagen;
+
 
 }
