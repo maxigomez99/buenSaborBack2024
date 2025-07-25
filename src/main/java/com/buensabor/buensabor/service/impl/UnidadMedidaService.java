@@ -17,45 +17,100 @@ public class UnidadMedidaService implements IUnidadMedidaService {
 
     @Override
     public List<UnidadMedida> findAll() {
-        return unidadMedidaRepository.findAll();
+        return unidadMedidaRepository.findAllActive();
+    }
+
+    @Override
+    public List<UnidadMedida> findAllIncludingDeleted() {
+        return unidadMedidaRepository.findAllIncludingDeleted();
+    }
+
+    @Override
+    public List<UnidadMedida> findAllActive() {
+        return unidadMedidaRepository.findAllActive();
     }
 
     @Override
     public UnidadMedida findById(Long id) {
-        Optional<UnidadMedida> optionalUnidadMedida = unidadMedidaRepository.findById(id);
-        return optionalUnidadMedida.orElse(null);
+        Optional<UnidadMedida> optional = unidadMedidaRepository.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        throw new RuntimeException("No se encontró la unidad de medida con id: " + id);
     }
 
     @Override
     public UnidadMedida save(UnidadMedida unidadMedida) {
+        // Validar que la denominación no esté duplicada
+        if (unidadMedidaRepository.existsByDenominacion(unidadMedida.getDenominacion())) {
+            throw new RuntimeException("Ya existe una unidad de medida con la denominación: " + unidadMedida.getDenominacion());
+        }
+
+        // Validar que la abreviatura no esté duplicada
+        if (unidadMedidaRepository.existsByAbreviatura(unidadMedida.getAbreviatura())) {
+            throw new RuntimeException("Ya existe una unidad de medida con la abreviatura: " + unidadMedida.getAbreviatura());
+        }
+
+        unidadMedida.setEliminado(false);
         return unidadMedidaRepository.save(unidadMedida);
     }
 
     @Override
     public UnidadMedida update(Long id, UnidadMedida unidadMedida) {
-        Optional<UnidadMedida> optionalUnidadMedida = unidadMedidaRepository.findById(id);
+        Optional<UnidadMedida> optional = unidadMedidaRepository.findById(id);
+        if (optional.isPresent()) {
+            UnidadMedida unidadMedidaExistente = optional.get();
 
-        if(optionalUnidadMedida.isPresent()) {
-            UnidadMedida existingUnidadMedida = optionalUnidadMedida.get();
-            existingUnidadMedida.setDenominacion(unidadMedida.getDenominacion());
+            // Validar que la denominación no esté duplicada (excluyendo el registro actual)
+            if (unidadMedidaRepository.existsByDenominacionAndIdNot(unidadMedida.getDenominacion(), id)) {
+                throw new RuntimeException("Ya existe otra unidad de medida con la denominación: " + unidadMedida.getDenominacion());
+            }
 
-            return unidadMedidaRepository.save(existingUnidadMedida);
+            // Validar que la abreviatura no esté duplicada (excluyendo el registro actual)
+            if (unidadMedidaRepository.existsByAbreviaturaAndIdNot(unidadMedida.getAbreviatura(), id)) {
+                throw new RuntimeException("Ya existe otra unidad de medida con la abreviatura: " + unidadMedida.getAbreviatura());
+            }
+
+            unidadMedidaExistente.setDenominacion(unidadMedida.getDenominacion());
+            unidadMedidaExistente.setAbreviatura(unidadMedida.getAbreviatura());
+            return unidadMedidaRepository.save(unidadMedidaExistente);
         }
-
-        return null;
+        throw new RuntimeException("No se encontró la unidad de medida con id: " + id);
     }
 
     @Override
     public boolean delete(Long id) {
-        if(unidadMedidaRepository.existsById(id)) {
-            // Verificar si la unidad de medida está siendo utilizada por algún artículo
-            if(unidadMedidaRepository.isUsedByAnyArticulo(id)) {
-                throw new RuntimeException("No se puede eliminar la unidad de medida porque está siendo utilizada por uno o más artículos");
-            }
+        try {
+            Optional<UnidadMedida> optional = unidadMedidaRepository.findById(id);
+            if (optional.isPresent()) {
+                UnidadMedida unidadMedida = optional.get();
 
-            unidadMedidaRepository.deleteById(id);
-            return true;
+                // Verificar si está siendo utilizada por algún artículo
+                if (unidadMedidaRepository.isUsedByAnyArticulo(id)) {
+                    // Solo marcar como eliminado si está siendo utilizada
+                    unidadMedida.setEliminado(true);
+                    unidadMedidaRepository.save(unidadMedida);
+                } else {
+                    // Eliminar físicamente si no está siendo utilizada
+                    unidadMedidaRepository.deleteById(id);
+                }
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar la unidad de medida: " + e.getMessage());
         }
-        return false;
+    }
+
+    @Override
+    public UnidadMedida toggleEstado(Long id) {
+        Optional<UnidadMedida> optional = unidadMedidaRepository.findById(id);
+        if (optional.isPresent()) {
+            UnidadMedida unidadMedida = optional.get();
+            // Alternar el estado: si está eliminado (true) lo activa (false) y viceversa
+            unidadMedida.setEliminado(!unidadMedida.isEliminado());
+            return unidadMedidaRepository.save(unidadMedida);
+        }
+        throw new RuntimeException("No se encontró la unidad de medida con id: " + id);
     }
 }

@@ -71,6 +71,13 @@ GET /api/articulos-insumo/{id}
 }
 ```
 
+**Respuesta de error (404 Not Found):**
+```json
+{
+  "error": "No se encontró el insumo"
+}
+```
+
 #### Obtener insumos por categoría
 
 ```
@@ -243,13 +250,33 @@ DELETE /api/categorias/{id}
 
 ## Unidades de Medida
 
-#### Obtener todas las unidades de medida
+#### Obtener todas las unidades de medida activas
 
 ```
 GET /api/unidades-medida
 ```
 
-**Nota importante:** Este endpoint retorna **todas** las unidades de medida, incluyendo las marcadas como eliminadas (campo `eliminado = true`). Para filtrar solo las activas, se recomienda implementar un endpoint adicional como `/api/unidades-medida/activas`.
+**Descripción:** Retorna solo las unidades de medida no eliminadas (campo `eliminado = false`).
+
+**Respuesta exitosa:**
+```json
+[
+  {
+    "id": 1,
+    "denominacion": "Kilogramo",
+    "abreviatura": "Kg",
+    "eliminado": false
+  }
+]
+```
+
+#### Obtener TODAS las unidades de medida (incluyendo eliminadas)
+
+```
+GET /api/unidades-medida/all
+```
+
+**Descripción:** Retorna **todas** las unidades de medida de la base de datos, incluyendo las marcadas como eliminadas (campo `eliminado = true`).
 
 **Respuesta exitosa:**
 ```json
@@ -269,10 +296,47 @@ GET /api/unidades-medida
 ]
 ```
 
+#### Obtener solo unidades de medida activas
+
+```
+GET /api/unidades-medida/activas
+```
+
+**Descripción:** Endpoint específico para obtener solo las unidades de medida activas (no eliminadas).
+
+**Respuesta exitosa:**
+```json
+[
+  {
+    "id": 1,
+    "denominacion": "Kilogramo",
+    "abreviatura": "Kg",
+    "eliminado": false
+  }
+]
+```
+
 #### Obtener una unidad de medida por ID
 
 ```
 GET /api/unidades-medida/{id}
+```
+
+**Respuesta exitosa:**
+```json
+{
+  "id": 1,
+  "denominacion": "Kilogramo",
+  "abreviatura": "Kg",
+  "eliminado": false
+}
+```
+
+**Respuesta de error (404 Not Found):**
+```json
+{
+  "error": "No se encontró la unidad de medida"
+}
 ```
 
 #### Crear una nueva unidad de medida
@@ -285,8 +349,33 @@ POST /api/unidades-medida
 ```json
 {
   "denominacion": "Litro",
+  "abreviatura": "L"
+}
+```
+
+**Validaciones:**
+- La denominación debe ser única (no distingue mayúsculas/minúsculas)
+- La abreviatura debe ser única (no distingue mayúsculas/minúsculas)
+
+**Respuesta exitosa (201 Created):**
+```json
+{
+  "id": 1,
+  "denominacion": "Litro",
   "abreviatura": "L",
-  "activo": true
+  "eliminado": false
+}
+```
+
+**Respuestas de error (400 Bad Request):**
+```json
+{
+  "error": "Ya existe una unidad de medida con la denominación: Litro"
+}
+```
+```json
+{
+  "error": "Ya existe una unidad de medida con la abreviatura: L"
 }
 ```
 
@@ -296,235 +385,97 @@ POST /api/unidades-medida
 PUT /api/unidades-medida/{id}
 ```
 
+**Cuerpo de la solicitud:**
+```json
+{
+  "denominacion": "Kilogramo",
+  "abreviatura": "kg"
+}
+```
+
+**Validaciones:**
+- La denominación debe ser única (no distingue mayúsculas/minúsculas)
+- La abreviatura debe ser única (no distingue mayúsculas/minúsculas)
+- No se pueden repetir con otras unidades de medida existentes
+
+**Respuesta exitosa:**
+```json
+{
+  "id": 1,
+  "denominacion": "Kilogramo",
+  "abreviatura": "kg",
+  "eliminado": false
+}
+```
+
+**Respuestas de error (400 Bad Request):**
+```json
+{
+  "error": "Ya existe otra unidad de medida con la denominación: Kilogramo"
+}
+```
+```json
+{
+  "error": "Ya existe otra unidad de medida con la abreviatura: kg"
+}
+```
+
 #### Eliminar una unidad de medida
 
 ```
 DELETE /api/unidades-medida/{id}
 ```
 
-**Nota importante:** Este endpoint realiza un **eliminado lógico**. No borra físicamente el registro de la base de datos, sino que marca el campo `eliminado` como `true`. Esto preserva la integridad referencial con los artículos que usan esta unidad de medida.
+**Descripción:** Realiza un **eliminado lógico** o físico dependiendo del uso de la unidad de medida.
 
-**Respuesta exitosa:** `204 No Content`
+**Comportamiento:**
+- Si la unidad de medida está siendo utilizada por artículos: Solo marca como eliminada (`eliminado = true`)
+- Si NO está siendo utilizada: Elimina físicamente el registro de la base de datos
 
-## Promociones
+**Respuesta exitosa (204 No Content):** Sin contenido
 
-#### Obtener todas las promociones
-
-```
-GET /api/promociones
-```
-
-#### Obtener una promoción por ID
-
-```
-GET /api/promociones/{id}
-```
-
-#### Crear una nueva promoción
-
-```
-POST /api/promociones
-```
-
-**Cuerpo de la solicitud:**
+**Respuestas de error:**
 ```json
 {
-  "denominacion": "2x1 en Pizzas",
-  "descripcion": "Lleva 2 pizzas y paga 1",
-  "fechaDesde": "2025-07-20",
-  "fechaHasta": "2025-08-20",
-  "activo": true,
-  "tipoPromocion": {
-    "id": 1
-  },
-  "detalles": [
-    {
-      "articulo": {
-        "id": 5
-      },
-      "cantidad": 2
-    }
-  ]
+  "error": "No se encontró la unidad de medida"
+}
+```
+```json
+{
+  "error": "Error al eliminar la unidad de medida: [detalle del error]"
 }
 ```
 
-#### Actualizar una promoción
+#### Activar/Desactivar una unidad de medida
 
 ```
-PUT /api/promociones/{id}
+PATCH /api/unidades-medida/{id}/toggle-estado
 ```
 
-#### Eliminar una promoción
+**Descripción:** Alterna el estado de la unidad de medida entre activa (eliminado = false) y desactivada (eliminado = true) con una sola llamada. Si está activa la desactiva, si está desactivada la activa.
 
-```
-DELETE /api/promociones/{id}
-```
-
-## Tipos de Promoción
-
-#### Obtener todos los tipos de promoción
-
-```
-GET /api/tipos-promocion
-```
-
-#### Obtener un tipo de promoción por ID
-
-```
-GET /api/tipos-promocion/{id}
-```
-
-#### Crear un nuevo tipo de promoción
-
-```
-POST /api/tipos-promocion
-```
-
-**Cuerpo de la solicitud:**
+**Respuesta exitosa:**
 ```json
 {
-  "denominacion": "Descuento porcentaje",
-  "activo": true
-}
-```
-
-#### Actualizar un tipo de promoción
-
-```
-PUT /api/tipos-promocion/{id}
-```
-
-#### Eliminar un tipo de promoción
-
-```
-DELETE /api/tipos-promocion/{id}
-```
-
-## Imágenes de Promoción
-
-#### Obtener todas las imágenes de promoción
-
-```
-GET /api/imagenes-promocion
-```
-
-#### Obtener una imagen de promoción por ID
-
-```
-GET /api/imagenes-promocion/{id}
-```
-
-#### Crear una nueva imagen de promoción
-
-```
-POST /api/imagenes-promocion
-```
-
-**Cuerpo de la solicitud:**
-```json
-{
-  "denominacion": "Imagen Promo 2x1",
-  "promocion": {
-    "id": 1
+  "mensaje": "Unidad de medida activada exitosamente",
+  "unidadMedida": {
+    "id": 1,
+    "denominacion": "Kilogramo",
+    "abreviatura": "Kg",
+    "eliminado": false
   }
 }
 ```
 
-#### Actualizar una imagen de promoción
-
-```
-PUT /api/imagenes-promocion/{id}
-```
-
-#### Eliminar una imagen de promoción
-
-```
-DELETE /api/imagenes-promocion/{id}
-```
-
-## Localidades
-
-#### Obtener todas las localidades
-
-```
-GET /api/localidades
-```
-
-#### Obtener una localidad por ID
-
-```
-GET /api/localidades/{id}
-```
-
-#### Crear una nueva localidad
-
-```
-POST /api/localidades
-```
-
-**Cuerpo de la solicitud:**
+**Respuesta cuando se desactiva:**
 ```json
 {
-  "denominacion": "Godoy Cruz",
-  "activo": true
+  "mensaje": "Unidad de medida desactivada exitosamente",
+  "unidadMedida": {
+    "id": 1,
+    "denominacion": "Kilogramo", 
+    "abreviatura": "Kg",
+    "eliminado": true
+  }
 }
-```
-
-#### Actualizar una localidad
-
-```
-PUT /api/localidades/{id}
-```
-
-#### Eliminar una localidad
-
-```
-DELETE /api/localidades/{id}
-```
-
-## Empresa
-
-#### Obtener información de la empresa
-
-```
-GET /api/empresa
-```
-
-#### Obtener información de la empresa por ID
-
-```
-GET /api/empresa/{id}
-```
-
-#### Crear o actualizar información de la empresa
-
-```
-POST /api/empresa
-```
-
-**Cuerpo de la solicitud:**
-```json
-{
-  "nombre": "Buen Sabor",
-  "email": "info@buensabor.com",
-  "telefono": "+54 261 123 4567",
-  "domicilio": "Av. San Martín 123",
-  "localidad": {
-    "id": 1
-  },
-  "horaApertura": "11:00",
-  "horaCierre": "23:00"
-}
-```
-
-#### Actualizar información de la empresa
-
-```
-PUT /api/empresa/{id}
-```
-
-#### Eliminar información de la empresa
-
-```
-DELETE /api/empresa/{id}
 ```

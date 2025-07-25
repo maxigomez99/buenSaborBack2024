@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -20,6 +21,16 @@ public class UnidadMedidaController {
     @GetMapping("")
     public ResponseEntity<List<UnidadMedida>> getAll() {
         return ResponseEntity.ok(unidadMedidaService.findAll());
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<UnidadMedida>> getAllIncludingDeleted() {
+        return ResponseEntity.ok(unidadMedidaService.findAllIncludingDeleted());
+    }
+
+    @GetMapping("/activas")
+    public ResponseEntity<List<UnidadMedida>> getAllActive() {
+        return ResponseEntity.ok(unidadMedidaService.findAllActive());
     }
 
     @GetMapping("/{id}")
@@ -52,8 +63,27 @@ public class UnidadMedidaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
-            unidadMedidaService.delete(id);
-            return ResponseEntity.noContent().build();
+            if (unidadMedidaService.delete(id)) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró la unidad de medida");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/toggle-estado")
+    public ResponseEntity<?> toggleEstado(@PathVariable Long id) {
+        try {
+            UnidadMedida unidadActualizada = unidadMedidaService.toggleEstado(id);
+            String mensaje = unidadActualizada.isEliminado() ?
+                "Unidad de medida desactivada exitosamente" :
+                "Unidad de medida activada exitosamente";
+
+            return ResponseEntity.ok().body(Map.of(
+                "mensaje", mensaje,
+                "unidadMedida", unidadActualizada
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
