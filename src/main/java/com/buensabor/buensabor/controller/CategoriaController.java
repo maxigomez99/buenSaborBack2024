@@ -29,6 +29,7 @@ public class CategoriaController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         try {
@@ -46,6 +47,7 @@ public class CategoriaController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Categoria categoria) {
         try {
@@ -54,6 +56,7 @@ public class CategoriaController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
@@ -106,6 +109,7 @@ public class CategoriaController {
             return new ResponseEntity<>(apiError, apiError.getStatus());
         }
     }
+
     @PutMapping("/actualizar/subcategoria/{idSubCategoria}")
     public ResponseEntity<?> actualizarSubCategoria(@PathVariable Long idSubCategoria, @RequestBody Categoria nuevaSubCategoria) {
         try {
@@ -136,6 +140,7 @@ public class CategoriaController {
             return new ResponseEntity<>(apiError, apiError.getStatus());
         }
     }
+
     @GetMapping("/traer-todo/")
     public ResponseEntity<?> traerTodo() {
         try {
@@ -145,6 +150,7 @@ public class CategoriaController {
             return new ResponseEntity<>(apiError, apiError.getStatus());
         }
     }
+
     //obtiene todas las subcategorias
     @GetMapping("/subcategorias/{id}")
     public ResponseEntity<?> obtenerSubCategorias(@PathVariable Long id) {
@@ -155,6 +161,7 @@ public class CategoriaController {
             return new ResponseEntity<>(apiError, apiError.getStatus());
         }
     }
+
     @GetMapping("/categoriasPadre/{sucursalId}")
     public ResponseEntity<?> obtenerCategoriasPadre(@PathVariable Long sucursalId) {
         try {
@@ -177,7 +184,6 @@ public class CategoriaController {
     }
 
 
-
     //---------------------Categoria por Empresa------------------------------------------------------------
     @Autowired
     private CategoriaService catService;
@@ -185,13 +191,12 @@ public class CategoriaController {
     @PostMapping("/porEmpresa")
     public ResponseEntity<?> crearCategoriaporEmpresa(@RequestBody CategoriaEmpresaDto categoriaDto) throws Exception {
         try {
-            Categoria nuevaCategoria = catService.crearCategoriaporEmpresa(categoriaDto);
-            return ResponseEntity.ok(nuevaCategoria);
+            Categoria categoriaGuardada = catService.crearCategoriaporEmpresa(categoriaDto);
+            return ResponseEntity.ok(categoriaGuardada);
 
         } catch (Exception e) {
             ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<>(apiError, apiError.getStatus());
-
         }
     }
 
@@ -230,6 +235,7 @@ public class CategoriaController {
             return new ResponseEntity<>(apiError, apiError.getStatus());
         }
     }
+
     @CrossOrigin(origins = "https://ecommerce-buen-sabor.vercel.app")
     @GetMapping("/traer-categoria-padre")
     public ResponseEntity<?> traerCategoriaPadre() {
@@ -240,6 +246,5 @@ public class CategoriaController {
             return new ResponseEntity<>(apiError, apiError.getStatus());
         }
     }
-
-//-----------------------
 }
+//-----------------------

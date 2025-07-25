@@ -19,6 +19,9 @@ public class Categoria extends Base{
     @ManyToMany
     private List<Sucursal> sucursales;
     private String denominacion;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String urlIcono;
 
 
