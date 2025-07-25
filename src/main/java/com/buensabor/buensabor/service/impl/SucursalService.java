@@ -29,22 +29,24 @@ public class SucursalService implements ISucursalService {
     @Autowired
     private Funcionalidades funcionalidades;
     @Override
-    public Sucursal save(Sucursal sucursal) throws Exception {
-        try {
-
-            if (sucursalRepository.findByNombre(sucursal.getNombre())){
-                throw new Exception("Ya existe una sucursal con el nombre proporcionado");
-            }
-            if (sucursal.getImagen() != null) {
-                String rutaImagen = funcionalidades.guardarImagen(sucursal.getImagen(), UUID.randomUUID().toString() + ".jpg");
-                sucursal.setImagen(rutaImagen);
-            }
-            return sucursalRepository.save(sucursal);
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+  public Sucursal save(Sucursal sucursal) throws Exception {
+    try {
+        // Check if a Sucursal with the same name already exists
+        if (sucursalRepository.existsByNombre(sucursal.getNombre())) {
+            throw new Exception("Ya existe una sucursal con el nombre proporcionado");
         }
-    }
 
+        // Validate and set the Base64 image directly
+        if (sucursal.getImagen() != null && !sucursal.getImagen().isEmpty()) {
+            sucursal.setImagen(sucursal.getImagen());
+        }
+
+        // Save the Sucursal entity to the database
+        return sucursalRepository.save(sucursal);
+    } catch (Exception e) {
+        throw new Exception("Error al guardar la sucursal: " + e.getMessage());
+    }
+}
     @Override
     public boolean delete(Long id) throws Exception {
         try {
@@ -67,9 +69,10 @@ public class SucursalService implements ISucursalService {
         try {
 
             Sucursal sucursalExistente = sucursalRepository.findById(id).orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
-            Localidad localidadActualizada = localidadRepository.findById(Long.valueOf(sucursalDto.getLocalidad())).orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
-            Provincia provincia = provinciaRepository.findById(Long.valueOf(sucursalDto.getProvincia())).orElseThrow(() -> new Exception("No se encontró la provincia con el id proporcionado"));
-            Pais pais = paisRepository.findById(Long.valueOf(sucursalDto.getPais())).orElseThrow(() -> new Exception("No se encontró el país con el id proporcionado"));
+            Localidad localidadActualizada = localidadRepository.findById(sucursalDto.getIdLocalidad())
+                    .orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
+//            Provincia provincia = provinciaRepository.findById(Long.valueOf(sucursalDto.getProvincia())).orElseThrow(() -> new Exception("No se encontró la provincia con el id proporcionado"));
+//            Pais pais = paisRepository.findById(Long.valueOf(sucursalDto.getPais())).orElseThrow(() -> new Exception("No se encontró el país con el id proporcionado"));
 
             // Verificar si existe otra sucursal con el mismo nombre pero diferente ID
             if(sucursalRepository.existsByNombreAndNotId(sucursalDto.getNombre(), id)){
@@ -83,8 +86,8 @@ public class SucursalService implements ISucursalService {
             sucursalExistente.setHorarioCierre(sucursalDto.getHorarioCierre());
 
 
-            sucursalExistente.getDomicilio().getLocalidad().getProvincia().setPais(pais);
-            sucursalExistente.getDomicilio().getLocalidad().setProvincia(provincia);
+//            sucursalExistente.getDomicilio().getLocalidad().getProvincia().setPais(pais);
+//            sucursalExistente.getDomicilio().getLocalidad().setProvincia(provincia);
             sucursalExistente.getDomicilio().setLocalidad(localidadActualizada);
             sucursalExistente.getDomicilio().setNumero(Integer.valueOf(sucursalDto.getNumero()));
             sucursalExistente.getDomicilio().setCalle(sucursalDto.getCalle());
@@ -162,41 +165,45 @@ public class SucursalService implements ISucursalService {
     @Override
     public Sucursal guardarSucursalDto(SucursalDto sucursalDto) throws Exception {
         try {
+            // Buscar la Empresa
+            Empresa empresa = empresaRepository.findById(sucursalDto.getIdEmpresa())
+                    .orElseThrow(() -> new Exception("No se encontró la empresa con el id proporcionado"));
 
-            Empresa empresa = empresaRepository.findById(Long.valueOf(String.valueOf(sucursalDto.getIdEmpresa()))).orElseThrow(() -> new Exception("No se encontró la empresa con el id proporcionado"));
-            Localidad localidad = localidadRepository.findById(Long.valueOf(sucursalDto.getLocalidad())).orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
-            Provincia provincia = provinciaRepository.findById(Long.valueOf(sucursalDto.getProvincia())).orElseThrow(() -> new Exception("No se encontró la provincia con el id proporcionado"));
-            Pais pais = paisRepository.findById(Long.valueOf(sucursalDto.getPais())).orElseThrow(() -> new Exception("No se encontró el país con el id proporcionado"));
+            // Buscar la Localidad existente
+            Localidad localidad = localidadRepository.findById(sucursalDto.getIdLocalidad())
+                    .orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
+
+            // Crear el domicilio y asociar localidad
             Domicilio domicilio = new Domicilio();
-            Sucursal sucursal = new Sucursal();
-
-
-            provincia.setPais(pais);
-            localidad.setProvincia(provincia);
             domicilio.setLocalidad(localidad);
-            sucursal.setEmpresa(empresa);
-
             domicilio.setCalle(sucursalDto.getCalle());
             domicilio.setNumero(Integer.valueOf(sucursalDto.getNumero()));
             domicilio.setCp(Integer.valueOf(sucursalDto.getCp()));
-            domicilioRepository.save(domicilio);
+            domicilio.setPiso(sucursalDto.getPiso() != null ? sucursalDto.getPiso() : "");
+            domicilio.setNumeroDepto(sucursalDto.getNumeroDepto() != null ? sucursalDto.getNumeroDepto() : "");
 
+            // Crear la sucursal y asociar empresa y domicilio
+            Sucursal sucursal = new Sucursal();
+            sucursal.setEmpresa(empresa);
             sucursal.setNombre(sucursalDto.getNombre());
             sucursal.setHorarioApertura(sucursalDto.getHorarioApertura());
             sucursal.setHorarioCierre(sucursalDto.getHorarioCierre());
             sucursal.setDomicilio(domicilio);
 
-            if (sucursalDto.getImagen() != null) {
-                String rutaImagen = funcionalidades.guardarImagen(sucursalDto.getImagen(), UUID.randomUUID().toString() + ".jpg");
-                sucursal.setImagen(rutaImagen);
+            // Guardar domicilio después de estar relacionado
+            domicilioRepository.save(domicilio);
+
+            // Guardar imagen si viene
+            if (sucursalDto.getImagen() != null && !sucursalDto.getImagen().isEmpty()) {
+                sucursal.setImagen(sucursalDto.getImagen());
             }
 
+            // Guardar sucursal
             return sucursalRepository.save(sucursal);
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new Exception("Error al guardar la sucursal: " + e.getMessage());
         }
     }
-
 
     public List<Sucursal> obtenerSucursalesActivas() throws Exception {
         try {
