@@ -40,7 +40,8 @@ GET /api/articulos-insumo
     "esParaElaborar": true,
     "unidadMedida": {
       "id": 1,
-      "denominacion": "Kg"
+      "denominacion": "Kg",
+      "abreviatura": "kg"
     }
   }
 ]
@@ -64,7 +65,8 @@ GET /api/articulos-insumo/{id}
   "esParaElaborar": true,
   "unidadMedida": {
     "id": 1,
-    "denominacion": "Kg"
+    "denominacion": "Kg",
+    "abreviatura": "kg"
   }
 }
 ```
@@ -247,6 +249,26 @@ DELETE /api/categorias/{id}
 GET /api/unidades-medida
 ```
 
+**Nota importante:** Este endpoint retorna **todas** las unidades de medida, incluyendo las marcadas como eliminadas (campo `eliminado = true`). Para filtrar solo las activas, se recomienda implementar un endpoint adicional como `/api/unidades-medida/activas`.
+
+**Respuesta exitosa:**
+```json
+[
+  {
+    "id": 1,
+    "denominacion": "Kilogramo",
+    "abreviatura": "Kg",
+    "eliminado": false
+  },
+  {
+    "id": 2,
+    "denominacion": "Litro",
+    "abreviatura": "L", 
+    "eliminado": true
+  }
+]
+```
+
 #### Obtener una unidad de medida por ID
 
 ```
@@ -279,6 +301,10 @@ PUT /api/unidades-medida/{id}
 ```
 DELETE /api/unidades-medida/{id}
 ```
+
+**Nota importante:** Este endpoint realiza un **eliminado lógico**. No borra físicamente el registro de la base de datos, sino que marca el campo `eliminado` como `true`. Esto preserva la integridad referencial con los artículos que usan esta unidad de medida.
+
+**Respuesta exitosa:** `204 No Content`
 
 ## Promociones
 

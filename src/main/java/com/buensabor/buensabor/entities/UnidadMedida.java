@@ -17,7 +17,7 @@ import java.util.List;
 public class UnidadMedida extends Base {
 
     private String denominacion;
-
+    private String abreviatura;
     @OneToMany(mappedBy = "unidadMedida")
     @JsonIgnore
     private List<ArticuloInsumo> articulosInsumo;
