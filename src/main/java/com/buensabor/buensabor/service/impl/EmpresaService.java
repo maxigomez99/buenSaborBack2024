@@ -138,4 +138,42 @@ public class EmpresaService implements IEmpresaService {
         return empresaRepository.findByCuil(cuil);
     }
 
+    @Override
+    public List<Empresa> findAll() {
+        return empresaRepository.findByEliminadoFalse();
+    }
+
+    @Override
+    public List<Empresa> findAllIncludingDeleted() {
+        return empresaRepository.findAll();
+    }
+
+    @Override
+    public List<Empresa> findAllActive() {
+        return empresaRepository.findByEliminadoFalse();
+    }
+
+
+    @Override
+    public Empresa toggleEstado(Long id) throws Exception {
+        try {
+            Empresa empresa = empresaRepository.findById(id)
+                    .orElseThrow(() -> new Exception("No se encontró la empresa con id: " + id));
+
+            // Verificar si la empresa tiene sucursales activas antes de desactivar
+            if (!empresa.isEliminado()) { // Si está activa y se va a desactivar
+                List<Sucursal> sucursalesActivas = sucursalRepository.findByEmpresaIdAndEliminadoFalse(id);
+                if (!sucursalesActivas.isEmpty()) {
+                    throw new Exception("No se puede desactivar la empresa porque tiene sucursales asociadas activas");
+                }
+            }
+
+            // Alternar el estado: si está eliminado (true) lo activa (false) y viceversa
+            empresa.setEliminado(!empresa.isEliminado());
+            return empresaRepository.save(empresa);
+
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
 }

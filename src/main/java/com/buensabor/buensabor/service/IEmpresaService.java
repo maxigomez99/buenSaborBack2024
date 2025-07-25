@@ -14,6 +14,8 @@ public interface IEmpresaService {
     public boolean reactivate(Long id) throws Exception;
     public List<Empresa> traerTodoNoEliminado() throws Exception;
     public Empresa buscarPorCuil(Long cuil) throws Exception;
-
-
+    public List<Empresa> findAll();
+    public List<Empresa> findAllIncludingDeleted();
+    public List<Empresa> findAllActive();
+    public Empresa toggleEstado(Long id) throws Exception;
 }

@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Objects;
 
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/empresa")
 public class EmpresaController {
     @Autowired
@@ -151,4 +153,50 @@ public class EmpresaController {
         }
     }
 
+    @PatchMapping("/{id}/toggle-estado")
+    public ResponseEntity<?> toggleEstado(@PathVariable Long id) {
+        try {
+            Empresa empresaActualizada = empresaService.toggleEstado(id);
+            String mensaje = empresaActualizada.isEliminado() ?
+                "Empresa desactivada exitosamente" :
+                "Empresa activada exitosamente";
+
+            return ResponseEntity.ok().body(Map.of(
+                "mensaje", mensaje,
+                "empresa", empresaActualizada
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // GET - Obtener todas las empresas activas (endpoint REST estándar)
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        try {
+            return ResponseEntity.ok(empresaService.findAllActive());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // GET - Obtener TODAS las empresas (incluyendo eliminadas)
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllIncludingDeleted() {
+        try {
+            return ResponseEntity.ok(empresaService.findAllIncludingDeleted());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // GET - Obtener solo empresas activas (endpoint específico)
+    @GetMapping("/activas")
+    public ResponseEntity<?> getAllActive() {
+        try {
+            return ResponseEntity.ok(empresaService.findAllActive());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
