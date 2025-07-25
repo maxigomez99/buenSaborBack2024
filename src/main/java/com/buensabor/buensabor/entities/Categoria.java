@@ -1,10 +1,12 @@
 package com.buensabor.buensabor.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,15 +14,36 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @ToString
 @SuperBuilder
-public class Categoria  extends Base {
+public class Categoria extends Base{
 
-
+    @ManyToMany
+    private List<Sucursal> sucursales;
     private String denominacion;
+    private String urlIcono;
 
-    @ManyToOne  ()
-    @JoinColumn(name ="categoriaPadreId")
+
+    @OneToMany(mappedBy = "categoria")
+    @Builder.Default
+    @ToString.Exclude
+    private Set<Articulo> articulos = new HashSet<>();
+//----------
+
+    @OneToMany(mappedBy = "categoriaPadre", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Categoria> subCategorias;
+//------
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_padre_id")
+    @ToString.Exclude
     private Categoria categoriaPadre;
-    @ManyToOne ()
-    @JoinColumn(name = "empresaId")
+
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
     private Empresa empresa;
+
+    public void agregarSubCategoria(Categoria subCategoria) {
+        this.subCategorias.add(subCategoria);
+    }
+
 }
