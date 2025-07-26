@@ -208,5 +208,20 @@ public class SucursalService implements ISucursalService {
         }
     }
 
+    @Override
+    public Sucursal toggleEstado(Long id) throws Exception {
+        try {
+            Sucursal sucursal = sucursalRepository.findById(id)
+                .orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
 
+            // Cambiar el estado eliminado (true -> false, false -> true)
+            sucursal.setEliminado(!sucursal.isEliminado());
+
+            // Guardar la sucursal con el estado actualizado
+            return sucursalRepository.save(sucursal);
+        } catch (Exception e) {
+            throw new Exception("Error al cambiar el estado de la sucursal: " + e.getMessage());
+        }
+    }
 }
+
