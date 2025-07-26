@@ -15,6 +15,11 @@ public class CategoriaDto extends BaseDto {
 
     private String denominacion;
     private String urlIcono;
+    private Long idCategoriaPadre;
     private Set<SucursalSimpleDto> sucursales = new HashSet<>();
     private Set<SubCategoriaDto> subCategoriaDtos = new HashSet<>();
+
+    public void setIdCategoriaPadre(Long id) {
+        this.idCategoriaPadre = id;
+    }
 }

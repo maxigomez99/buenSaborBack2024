@@ -1,8 +1,3 @@
-package com.buensabor.buensabor.service.impl;
-
-import com.buensabor.buensabor.dto.categoria.*;
-import com.buensabor.buensabor.dto.sucursal.SucursalSimpleDto;
-import com.buensabor.buensabor.entities.Articulo;
 import com.buensabor.buensabor.entities.Categoria;
 import com.buensabor.buensabor.entities.Empresa;
 import com.buensabor.buensabor.entities.Sucursal;
@@ -702,25 +697,24 @@ public class CategoriaService implements ICategoriaService {
 
             Set<CategoriaDto> categoriasDto = new HashSet<>();
 
-            for (Categoria categoria : categoriasPadre) {
-                CategoriaDto categoriaDto = new CategoriaDto();
-                categoriaDto.setId(categoria.getId());
+            // Obtener TODAS las categorías asociadas a la sucursal sin importar el nivel jerárquico
+            Set<Categoria> todasLasCategorias = categoriaRepository.findBySucursales_Id(sucursalId);
+
+            // Convertir a DTO y devolver la lista plana
                 categoriaDto.setDenominacion(categoria.getDenominacion());
-                categoriaDto.setUrlIcono(categoria.getUrlIcono());
-                categoriaDto.setEliminado(categoria.isEliminado());
+
+            for (Categoria categoria : todasLasCategorias) {
 
                 // Agregar subcategorías recursivamente
                 Set<Categoria> subCategorias = categoriaRepository.findByCategoriaPadre_IdAndSucursales_IdAndEliminadoFalse(categoria.getId(), sucursalId);
                 for (Categoria subCategoria : subCategorias) {
                     SubCategoriaDto subCategoriaDto = obtenerSubCategoriasRecursivamentePorSucursal(subCategoria, sucursalId);
-                    categoriaDto.getSubCategoriaDtos().add(subCategoriaDto);
-                }
 
-                categoriasDto.add(categoriaDto);
-            }
-
+                // Si tiene categoría padre, agregar el ID para poder armar el árbol en el frontend
+                if (categoria.getCategoriaPadre() != null) {
+                    categoriaDto.setIdCategoriaPadre(categoria.getCategoriaPadre().getId());
             return categoriasDto;
-        } catch (Exception e) {
+
             throw new Exception("Error al obtener las categorías por sucursal: " + e.getMessage());
         }
     }
@@ -730,18 +724,6 @@ public class CategoriaService implements ICategoriaService {
         subCategoriaDto.setId(categoria.getId());
         subCategoriaDto.setDenominacion(categoria.getDenominacion());
         subCategoriaDto.setUrlIcono(categoria.getUrlIcono());
-        subCategoriaDto.setEliminado(categoria.isEliminado());
-        subCategoriaDto.setIdCategoriaPadre(categoria.getCategoriaPadre() != null ? categoria.getCategoriaPadre().getId() : null);
-
-        // Obtener subcategorías de esta categoría que estén asociadas a la sucursal
-        Set<Categoria> subCategorias = categoriaRepository.findByCategoriaPadre_IdAndSucursales_IdAndEliminadoFalse(categoria.getId(), sucursalId);
-        for (Categoria subCategoria : subCategorias) {
-            SubCategoriaDto subSubCategoriaDto = obtenerSubCategoriasRecursivamentePorSucursal(subCategoria, sucursalId);
-            subCategoriaDto.getSubSubCategoriaDtos().add(subSubCategoriaDto);
-        }
-
-        return subCategoriaDto;
-    }
 
     public Set<CategoriaDto> traerCategoriasNoAsociadasASucursal(Long sucursalId, Long empresaId) throws Exception {
         try {

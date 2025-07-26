@@ -29,24 +29,24 @@ public class SucursalService implements ISucursalService {
     @Autowired
     private Funcionalidades funcionalidades;
     @Override
-  public Sucursal save(Sucursal sucursal) throws Exception {
-    try {
-        // Check if a Sucursal with the same name already exists
-        if (sucursalRepository.existsByNombre(sucursal.getNombre())) {
-            throw new Exception("Ya existe una sucursal con el nombre proporcionado");
-        }
+    public Sucursal save(Sucursal sucursal) throws Exception {
+        try {
+            // Check if a Sucursal with the same name already exists
+            if (sucursalRepository.existsByNombre(sucursal.getNombre())) {
+                throw new Exception("Ya existe una sucursal con el nombre proporcionado");
+            }
 
-        // Validate and set the Base64 image directly
-        if (sucursal.getImagen() != null && !sucursal.getImagen().isEmpty()) {
-            sucursal.setImagen(sucursal.getImagen());
-        }
+            // Validate and set the Base64 image directly
+            if (sucursal.getImagen() != null && !sucursal.getImagen().isEmpty()) {
+                sucursal.setImagen(sucursal.getImagen());
+            }
 
-        // Save the Sucursal entity to the database
-        return sucursalRepository.save(sucursal);
-    } catch (Exception e) {
-        throw new Exception("Error al guardar la sucursal: " + e.getMessage());
+            // Save the Sucursal entity to the database
+            return sucursalRepository.save(sucursal);
+        } catch (Exception e) {
+            throw new Exception("Error al guardar la sucursal: " + e.getMessage());
+        }
     }
-}
     @Override
     public boolean delete(Long id) throws Exception {
         try {
@@ -212,7 +212,7 @@ public class SucursalService implements ISucursalService {
     public Sucursal toggleEstado(Long id) throws Exception {
         try {
             Sucursal sucursal = sucursalRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
+                    .orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
 
             // Cambiar el estado eliminado (true -> false, false -> true)
             sucursal.setEliminado(!sucursal.isEliminado());
@@ -224,4 +224,3 @@ public class SucursalService implements ISucursalService {
         }
     }
 }
-
