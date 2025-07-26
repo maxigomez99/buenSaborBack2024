@@ -117,6 +117,8 @@ public class SucursalController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @CrossOrigin(origins = "http://localhost:5173")
     @PatchMapping("/{id}/toggle-estado")
     public ResponseEntity<?> toggleEstado(@PathVariable Long id) {
         try {
