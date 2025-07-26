@@ -1,18 +1,16 @@
 package com.buensabor.buensabor.repository;
 
+
 import com.buensabor.buensabor.entities.ArticuloInsumo;
-import com.buensabor.buensabor.entities.ImagenArticulo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
 
 import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface IArticuloInsumoRepository extends JpaRepository<ArticuloInsumo, Long>{
-
+public interface IArticuloInsumoRepository extends JpaRepository<ArticuloInsumo, Long> {
     List<ArticuloInsumo> findByEliminadoFalse();
 
     boolean existsByCodigoAndEliminadoFalse(String codigo);
@@ -38,8 +36,4 @@ public interface IArticuloInsumoRepository extends JpaRepository<ArticuloInsumo,
     List<ArticuloInsumo> findByCategoriaIdAndEliminadoFalse(Long categoriaId);
     @Query("SELECT ai FROM ArticuloInsumo ai WHERE ai.stockActual > 0 AND ai.sucursal.id = :sucursalId")
     List<ArticuloInsumo> findInsumosConStockPorSucursal(Long sucursalId);
-
-    Set<ImagenArticulo> findByArticulo_Id(Long id);
-
-    void delete(ImagenArticulo imagenVieja);
 }

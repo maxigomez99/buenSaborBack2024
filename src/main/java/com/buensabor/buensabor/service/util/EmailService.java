@@ -13,9 +13,9 @@ public class EmailService {
 
     private JavaMailSender javaMailSender;
 
-    public EmailService(JavaMailSender javaMailSender) {
-        this.javaMailSender = javaMailSender;
-    }
+   // public EmailService(JavaMailSender javaMailSender) {
+    //    this.javaMailSender = javaMailSender;
+   // }
 
     public void sendEmailWithAttachment(String to, String subject, String content, byte[] attachment) {
         try {
