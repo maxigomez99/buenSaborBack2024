@@ -66,21 +66,10 @@ public class EmpresaController {
             if (empresaExistente == null) {
                 return ResponseEntity.badRequest().body("No se encontró la empresa con el ID proporcionado.");
             }
-
-//            System.out.println("====== EDICIÓN EMPRESA ======");
-//            System.out.println("ID actual: " + id);
-//            System.out.println("CUIL en BD: " + empresaExistente.getCuil());
-//            System.out.println("CUIL recibido: " + empresaDTO.getCuil());
-
             boolean cuilModificado = !Objects.equals(empresaDTO.getCuil(), empresaExistente.getCuil());
-//            System.out.println("¿CUIL modificado? " + cuilModificado);
-
             if (cuilModificado) {
                 Empresa empresaConMismoCuil = empresaService.buscarPorCuil(empresaDTO.getCuil());
-
                 if (empresaConMismoCuil != null) {
-//                    System.out.println("Empresa encontrada por ese CUIL: ID = " + empresaConMismoCuil.getId());
-
                     if (!Objects.equals(empresaConMismoCuil.getId(), empresaExistente.getId())) {
                         System.out.println("ERROR: El CUIL pertenece a otra empresa.");
                         return ResponseEntity.badRequest().body("Ya existe una empresa con el mismo CUIL.");
@@ -88,12 +77,10 @@ public class EmpresaController {
                         System.out.println("CUIL pertenece a la misma empresa. ✅ OK");
                     }
                 }
-
                 empresaExistente.setCuil(empresaDTO.getCuil());
             } else {
                 System.out.println("CUIL no fue modificado, se salta la validación.");
             }
-
             // Actualizar los demás campos
             empresaExistente.setNombre(empresaDTO.getNombre());
             empresaExistente.setRazonSocial(empresaDTO.getRazonSocial());

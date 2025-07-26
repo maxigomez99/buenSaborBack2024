@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/sucursal")
 
@@ -111,6 +113,24 @@ public class SucursalController {
     public ResponseEntity<?> traerSucursales(){
         try {
             return ResponseEntity.ok(sucursalService.obtenerSucursalesActivas());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin(origins = "http://localhost:5173")
+    @PatchMapping("/{id}/toggle-estado")
+    public ResponseEntity<?> toggleEstado(@PathVariable Long id) {
+        try {
+            Sucursal sucursalActualizada = sucursalService.toggleEstado(id);
+            String mensaje = sucursalActualizada.isEliminado() ?
+                "Sucursal desactivada exitosamente" :
+                "Sucursal activada exitosamente";
+
+            return ResponseEntity.ok().body(Map.of(
+                "mensaje", mensaje,
+                "sucursal", sucursalActualizada
+            ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

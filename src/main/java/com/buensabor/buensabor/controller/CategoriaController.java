@@ -246,5 +246,43 @@ public class CategoriaController {
             return new ResponseEntity<>(apiError, apiError.getStatus());
         }
     }
+
+    //---------------------Asociación de Sucursales------------------------------------------------------------
+    @PostMapping("/agregarSucursalACategoria/{categoriaId}/{sucursalId}")
+    public ResponseEntity<?> agregarSucursalACategoria(@PathVariable Long categoriaId, @PathVariable Long sucursalId){
+        try {
+            return ResponseEntity.ok(catService.agregarSucursalACategoria(categoriaId, sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/desasociarSucursalDeCategoria/{categoriaId}/{sucursalId}")
+    public ResponseEntity<?> desasociarSucursalDeCategoria(@PathVariable Long categoriaId, @PathVariable Long sucursalId){
+        try {
+            return ResponseEntity.ok(catService.desasociarSucursalDeCategoria(categoriaId, sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/porSucursal/{sucursalId}")
+    public ResponseEntity<?> obtenerCategoriasPorSucursal(@PathVariable Long sucursalId){
+        try {
+            return ResponseEntity.ok(catService.obtenerCategoriasPorSucursal(sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/no-asociadas/{sucursalId}/{empresaId}")
+    public ResponseEntity<?> obtenerCategoriasNoAsociadasASucursal(@PathVariable Long sucursalId, @PathVariable Long empresaId) {
+        try {
+            return ResponseEntity.ok().body(catService.traerCategoriasNoAsociadasASucursal(sucursalId, empresaId));
+        } catch (Exception e) {
+            ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<>(apiError, apiError.getStatus());
+        }
+    }
+
 }
-//-----------------------

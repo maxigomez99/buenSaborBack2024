@@ -93,18 +93,13 @@ public class SucursalService implements ISucursalService {
             sucursalExistente.getDomicilio().setCalle(sucursalDto.getCalle());
             sucursalExistente.getDomicilio().setCp(Integer.valueOf(sucursalDto.getCp()));
 
-            // Si se proporciona una nueva imagen, guardarla y actualizar el campo de imagen
-            if (sucursalDto.getImagen() != null && !sucursalDto.getImagen().isEmpty()) {
-                // Eliminar la imagen antigua si existe
-                if(sucursalExistente.getImagen() != null){
-                    funcionalidades.eliminarImagen(sucursalExistente.getImagen());
-                }
-                // Guardar la nueva imagen
-                String rutaImagen = funcionalidades.guardarImagen(sucursalDto.getImagen(), UUID.randomUUID().toString() + ".jpg");
-                sucursalExistente.setImagen(rutaImagen);
-            } else if (sucursalDto.getImagen() != null) {
-                String rutaImagen = funcionalidades.guardarImagen(sucursalDto.getImagen(), UUID.randomUUID().toString() + ".jpg");
-                sucursalExistente.setImagen(rutaImagen);
+            // Manejo de la imagen en base64
+            if (sucursalDto.getImagen() == null || sucursalDto.getImagen().isEmpty()) {
+                // Si no se envía imagen o es vacía, guardamos cadena vacía
+                sucursalExistente.setImagen("");
+            } else {
+                // Si se envía imagen, la guardamos directamente como base64
+                sucursalExistente.setImagen(sucursalDto.getImagen());
             }
 
 
@@ -213,5 +208,20 @@ public class SucursalService implements ISucursalService {
         }
     }
 
+    @Override
+    public Sucursal toggleEstado(Long id) throws Exception {
+        try {
+            Sucursal sucursal = sucursalRepository.findById(id)
+                .orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
 
+            // Cambiar el estado eliminado (true -> false, false -> true)
+            sucursal.setEliminado(!sucursal.isEliminado());
+
+            // Guardar la sucursal con el estado actualizado
+            return sucursalRepository.save(sucursal);
+        } catch (Exception e) {
+            throw new Exception("Error al cambiar el estado de la sucursal: " + e.getMessage());
+        }
+    }
 }
+
