@@ -1,10 +1,8 @@
 package com.buensabor.buensabor.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -13,14 +11,13 @@ import java.util.List;
 @Getter
 @ToString
 @SuperBuilder
-public class ArticuloInsumo extends Articulo {
+//@Audited
+public class ArticuloInsumo extends Articulo{
+
 
     private Double precioCompra;
     private Integer stockActual;
-    private Integer stockMinimo;
+    private Integer stockMaximo;
     private Boolean esParaElaborar;
-
-
-    @OneToMany(mappedBy = "articuloInsumo")
-    private List<ArticuloManufacturadoDetalle> articuloManufacturadoDetalles;
+    private Integer stockMinimo;
 }

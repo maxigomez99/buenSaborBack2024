@@ -2,7 +2,6 @@ package com.buensabor.buensabor.service.impl;
 
 import com.buensabor.buensabor.entities.ImagenPromocion;
 import com.buensabor.buensabor.repository.IImagenPromocionRepository;
-import com.buensabor.buensabor.service.IImagenPromocionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

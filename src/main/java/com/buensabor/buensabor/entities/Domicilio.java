@@ -23,6 +23,6 @@ public class Domicilio extends Base {
     @JoinColumn(name = "id_localidad")
     private Localidad localidad;
 
-//    @ManyToMany(mappedBy = "domicilios")
-//    private List<Cliente> clientes;
+    @ManyToMany(mappedBy = "domicilios")
+    private List<Cliente> clientes;
 }

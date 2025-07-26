@@ -1,8 +1,6 @@
 package com.buensabor.buensabor.entities;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -13,10 +11,8 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @ToString
 @SuperBuilder
-
+//@Audited
 public class ImagenEmpleado extends Base{
+    private String url;
 
-    @Lob
-    @Column(columnDefinition = "LONGTEXT")
-    private String imagen;
 }

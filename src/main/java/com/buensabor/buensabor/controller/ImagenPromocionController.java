@@ -1,7 +1,6 @@
 package com.buensabor.buensabor.controller;
 
 import com.buensabor.buensabor.entities.ImagenPromocion;
-import com.buensabor.buensabor.service.IImagenPromocionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

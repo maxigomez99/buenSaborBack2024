@@ -1,10 +1,15 @@
 package com.buensabor.buensabor.entities;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -13,15 +18,15 @@ import java.util.List;
 @Getter
 @ToString
 @SuperBuilder
-public class ArticuloManufacturado extends Articulo {
+//@Audited
+public class ArticuloManufacturado extends Articulo{
 
-    private String descripcion;
     private Integer tiempoEstimadoMinutos;
     private String preparacion;
 
-    @OneToMany(mappedBy = "articuloManufacturado")
-    private List<ArticuloManufacturadoDetalle> detalles;
-
-    @OneToMany(mappedBy = "articuloManufacturado")
-    private List<PromocionDetalle> promocionDetalles;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "articuloManufacturado")
+    @JsonManagedReference
+    @Builder.Default
+    @ToString.Exclude
+    private Set<ArticuloManufacturadoDetalle> articuloManufacturadoDetalles = new HashSet<>();
 }

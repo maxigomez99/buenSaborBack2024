@@ -2,7 +2,6 @@ package com.buensabor.buensabor.service.impl;
 
 import com.buensabor.buensabor.entities.PromocionDetalle;
 import com.buensabor.buensabor.repository.IPromocionDetalleRepository;
-import com.buensabor.buensabor.service.IPromocionDetalleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
