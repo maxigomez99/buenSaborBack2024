@@ -1,12 +1,17 @@
 package com.buensabor.buensabor.controller;
 
+
+
+import com.buensabor.buensabor.dto.promocion.PromocionDto;
 import com.buensabor.buensabor.entities.Promocion;
 import com.buensabor.buensabor.errores.ApiError;
 import com.buensabor.buensabor.repository.IPromocionDetalleRepository;
+import com.buensabor.buensabor.service.IPromocionService;
 import com.buensabor.buensabor.service.impl.PromocionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

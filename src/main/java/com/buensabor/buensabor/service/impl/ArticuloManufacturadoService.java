@@ -1,154 +1,317 @@
 package com.buensabor.buensabor.service.impl;
 
+
+import com.buensabor.buensabor.dto.articuloInsumo.ArticuloInsumoDto;
+import com.buensabor.buensabor.dto.articuloManufacturado.ArticuloManufacturadoDetalleDto;
 import com.buensabor.buensabor.dto.articuloManufacturado.ArticuloManufacturadoDto;
 import com.buensabor.buensabor.dto.articuloManufacturado.ArticuloManufacturadoTablaDto;
-import com.buensabor.buensabor.entities.ArticuloManufacturado;
+import com.buensabor.buensabor.dto.categoria.CategoriaDto;
+import com.buensabor.buensabor.entities.*;
+import com.buensabor.buensabor.mapeosDto.MapeoDto;
+import com.buensabor.buensabor.repository.IArticuloManufacturadoDetalleRepository;
 import com.buensabor.buensabor.repository.IArticuloManufacturadoRepository;
+import com.buensabor.buensabor.repository.IImagenArticuloRepository;
 import com.buensabor.buensabor.service.IArticuloManufacturadoService;
+import com.buensabor.buensabor.service.funcionalidades.Funcionalidades;
+import com.buensabor.buensabor.service.util.ImagenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 public class ArticuloManufacturadoService implements IArticuloManufacturadoService {
 
     @Autowired
     private IArticuloManufacturadoRepository articuloManufacturadoRepository;
+    @Autowired
+    private IArticuloManufacturadoDetalleRepository detalleRepository;
+    @Autowired
+    private IImagenArticuloRepository imagenRepository;
+    @Autowired
+    private ImagenService imagenService;
+    @Autowired
+    private Funcionalidades funcionalidades;
+    @Autowired
+    private MapeoDto mapeoDto;
+
+//region Crud Basico
+
+    //region Cargar
 
     @Override
     public ArticuloManufacturado cargarArticuloManufacturado(ArticuloManufacturado articuloManufacturado) throws Exception {
         try {
+            Long sucursalId = articuloManufacturado.getSucursal().getId();
+
+            if (articuloManufacturadoRepository.existsByDenominacionAndSucursal_IdAndEliminadoFalse(articuloManufacturado.getDenominacion(), sucursalId)) {
+                throw new Exception("Ya existe un articulo con esa denominacion en la misma sucursal");
+            }
+            if (articuloManufacturadoRepository.existsByCodigoAndSucursal_IdAndEliminadoFalse(articuloManufacturado.getCodigo(), sucursalId)) {
+                throw new Exception("Ya existe un articulo con ese codigo en la misma sucursal");
+            }
+
+            if (articuloManufacturado.getImagenes() != null) {
+                for (ImagenArticulo imagen : articuloManufacturado.getImagenes()) {
+                    // Generar un nombre de archivo único para cada imagen
+                    String filename = UUID.randomUUID().toString() + ".jpg";
+
+                    // Utilizar la función guardarImagen de Funcionalidades para guardar la imagen
+                    String ruta = funcionalidades.guardarImagen(imagen.getUrl(), filename);
+
+                    // Actualizar el campo url en ImagenArticulo
+                    imagen.setUrl(ruta);
+                    imagen.setArticulo(articuloManufacturado);
+                }
+            }
+
+            for (ArticuloManufacturadoDetalle detalle : articuloManufacturado.getArticuloManufacturadoDetalles()) {
+                detalle.setArticuloManufacturado(articuloManufacturado);
+            }
+
             return articuloManufacturadoRepository.save(articuloManufacturado);
         } catch (Exception e) {
-            throw new Exception("Error al cargar el artículo manufacturado: " + e.getMessage());
+            throw new Exception(e);
         }
     }
 
+    //endregion
+
+    //region Buscar por ID
     @Override
     public ArticuloManufacturado buscarPorId(Long id) throws Exception {
         try {
-            Optional<ArticuloManufacturado> optionalArticuloManufacturado = articuloManufacturadoRepository.findById(id);
-            if(optionalArticuloManufacturado.isPresent()) {
-                return optionalArticuloManufacturado.get();
-            } else {
-                throw new Exception("No se encontró el artículo manufacturado con ID: " + id);
+            ArticuloManufacturado Manufacturado = articuloManufacturadoRepository.findByIdAndEliminadoFalse(id);
+            if (Manufacturado == null) {
+                throw new Exception("No se encontro el articulo");
             }
+
+            // Convertir las imágenes a base64
+            if (Manufacturado.getImagenes() != null) {
+                for (ImagenArticulo imagen : Manufacturado.getImagenes()) {
+                    try {
+                        String imagenBase64 = imagenService.convertirImagenABase64Nueva(imagen.getUrl());
+                        imagen.setUrl(imagenBase64); // Actualizar el campo url en ImagenArticulo con la imagen en base64
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            return Manufacturado;
         } catch (Exception e) {
-            throw new Exception("Error al buscar el artículo manufacturado: " + e.getMessage());
+            throw new Exception(e);
         }
     }
+//endregion
 
+    //region Mostrar Lista
     @Override
     public Set<ArticuloManufacturado> listaArticuloManufacturado() throws Exception {
         try {
-            List<ArticuloManufacturado> lista = articuloManufacturadoRepository.findAll();
-            return new HashSet<>(lista);
+            Set<ArticuloManufacturado> articulosManufacturados = articuloManufacturadoRepository.findByEliminadoFalse();
+
+
+            for (ArticuloManufacturado articuloManufacturado : articulosManufacturados) {
+                if (articuloManufacturado.getImagenes() != null) {
+                    for (ImagenArticulo imagen : articuloManufacturado.getImagenes()) {
+                        try {
+                            String imagenBase64 = imagenService.convertirImagenABase64Nueva(imagen.getUrl());
+                            imagen.setUrl(imagenBase64);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            }
+
+            return articulosManufacturados;
         } catch (Exception e) {
-            throw new Exception("Error al obtener la lista de artículos manufacturados: " + e.getMessage());
+            throw new Exception(e);
         }
     }
 
+    //endregion
+
+    //region Eliminacion
     @Override
     public boolean eliminarArticuloManufacturado(Long id) throws Exception {
         try {
-            if(articuloManufacturadoRepository.existsById(id)) {
-                ArticuloManufacturado articulo = articuloManufacturadoRepository.findById(id).get();
-                articulo.setEliminado(true);
-                articuloManufacturadoRepository.save(articulo);
-                return true;
-            } else {
-                throw new Exception("No se encontró el artículo manufacturado con ID: " + id);
+            ArticuloManufacturado articuloManufacturado = articuloManufacturadoRepository.findById(id).orElse(null);
+            if (articuloManufacturado == null) {
+                throw new Exception("No se encontro el articulo");
             }
-        } catch (Exception e) {
-            throw new Exception("Error al eliminar el artículo manufacturado: " + e.getMessage());
+            articuloManufacturado.setEliminado(true);
+
+
+            for (ArticuloManufacturadoDetalle detalle : articuloManufacturado.getArticuloManufacturadoDetalles()) {
+                detalle.setEliminado(true);
+                detalleRepository.save(detalle);
+            }
+
+
+            for (ImagenArticulo imagen : articuloManufacturado.getImagenes()) {
+                imagen.setEliminado(true);
+                imagenRepository.save(imagen);
+            }
+
+            articuloManufacturadoRepository.save(articuloManufacturado);
+            return true;
+        }catch (Exception e){
+            throw new Exception(e);
         }
     }
+
+    //endregion
+
+    //region Actualizar
 
     @Override
     public ArticuloManufacturadoDto actualizarArticuloManufacturado(Long id, ArticuloManufacturado articuloManufacturado) throws Exception {
         try {
-            Optional<ArticuloManufacturado> optionalArticuloManufacturado = articuloManufacturadoRepository.findById(id);
-
-            if(optionalArticuloManufacturado.isPresent()) {
-                ArticuloManufacturado existingArticulo = optionalArticuloManufacturado.get();
-                existingArticulo.setDenominacion(articuloManufacturado.getDenominacion());
-                existingArticulo.setDescripcion(articuloManufacturado.getDescripcion());
-                existingArticulo.setTiempoEstimadoMinutos(articuloManufacturado.getTiempoEstimadoMinutos());
-                existingArticulo.setPreparacion(articuloManufacturado.getPreparacion());
-                existingArticulo.setPrecioVenta(articuloManufacturado.getPrecioVenta());
-                existingArticulo.setCategoria(articuloManufacturado.getCategoria());
-
-                ArticuloManufacturado saved = articuloManufacturadoRepository.save(existingArticulo);
-
-                // Convertir a DTO
-                ArticuloManufacturadoDto dto = new ArticuloManufacturadoDto();
-                dto.setId(saved.getId());
-                dto.setDenominacion(saved.getDenominacion());
-                dto.setDescripcion(saved.getDescripcion());
-                dto.setTiempoEstimadoMinutos(saved.getTiempoEstimadoMinutos());
-                dto.setPreparacion(saved.getPreparacion());
-                dto.setPrecioVenta(saved.getPrecioVenta());
-                if (saved.getCategoria() != null) {
-                    dto.setCategoriaId(saved.getCategoria().getId());
-                }
-
-                return dto;
-            } else {
-                throw new Exception("No se encontró el artículo manufacturado con ID: " + id);
+            if (!articuloManufacturadoRepository.existsById(id)){
+                throw new Exception("No se encontro el articulo");
             }
+
+            ArticuloManufacturado articuloManufacturadoViejo = articuloManufacturadoRepository.findById(id).get();
+            Long sucursalId = articuloManufacturadoViejo.getSucursal().getId();
+
+            if(articuloManufacturadoRepository.existsByCodigoAndSucursal_Id(articuloManufacturado.getCodigo(), sucursalId) && !articuloManufacturado.getCodigo().equals(articuloManufacturadoViejo.getCodigo())){
+                throw new Exception("Ya existe un articulo con ese codigo en la misma sucursal");
+            }
+            if (articuloManufacturadoRepository.existsByDenominacionAndSucursal_Id(articuloManufacturado.getDenominacion(), sucursalId) && !articuloManufacturado.getDenominacion().equals(articuloManufacturadoViejo.getDenominacion())){
+                throw new Exception("Ya existe un articulo con esa denominacion en la misma sucursal");
+            }
+
+
+            Set<ArticuloManufacturadoDetalle> detallesViejos = detalleRepository.findByArticuloManufacturado_Id(id);
+            Set<ArticuloManufacturadoDetalle> detallesNuevos = articuloManufacturado.getArticuloManufacturadoDetalles();
+
+            detallesViejos.forEach(detalleViejo -> {
+                if (!detallesNuevos.contains(detalleViejo)) {
+                    detalleViejo.setEliminado(true);
+                    detalleViejo.setArticuloManufacturado(null);
+                    detalleRepository.save(detalleViejo);
+                }
+            });
+            //endregion
+
+
+            Set<ImagenArticulo> imagenesViejas = imagenRepository.findByArticulo_Id(id);
+            Set<ImagenArticulo> imagenesNuevas = articuloManufacturado.getImagenes();
+
+            imagenesViejas.forEach(imagenVieja -> {
+                if (!imagenesNuevas.contains(imagenVieja)) {
+                    imagenVieja.setEliminado(true);
+                    imagenVieja.setArticulo(null);
+                    imagenRepository.save(imagenVieja);
+                    funcionalidades.eliminarImagen(imagenVieja.getUrl());
+                    imagenRepository.delete(imagenVieja);
+                }
+            });
+
+            if (articuloManufacturado.getImagenes() != null) {
+                for (ImagenArticulo imagen : articuloManufacturado.getImagenes()) {
+
+                    String filename = UUID.randomUUID().toString() + ".jpg";
+                    try {
+                        String rutaImagen = funcionalidades.guardarImagen(imagen.getUrl(), filename);
+                        imagen.setUrl(rutaImagen);
+                        imagen.setArticulo(articuloManufacturado);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+
+                    boolean exists = imagenesViejas.stream().anyMatch(oldImage -> oldImage.getUrl().equals(imagen.getUrl()));
+
+
+                    if (!exists && imagenesNuevas.contains(imagen)) {
+                        imagenRepository.save(imagen);
+                    }
+                }
+            }
+
+            articuloManufacturado.setPrecioVenta(articuloManufacturadoViejo.getPrecioVenta());
+            articuloManufacturado.setTiempoEstimadoMinutos(articuloManufacturadoViejo.getTiempoEstimadoMinutos());
+            articuloManufacturado.setSucursal(articuloManufacturadoViejo.getSucursal());
+            ArticuloManufacturadoDto dto= mapeoDto.convertManufacturadoDto(articuloManufacturadoRepository.save(articuloManufacturado));
+            return dto;
+
         } catch (Exception e) {
-            throw new Exception("Error al actualizar el artículo manufacturado: " + e.getMessage());
+            throw new Exception(e);
         }
     }
+    //endregion
 
-    @Override
+    //endregion
+
+    //region Dtos
+
     public Set<ArticuloManufacturadoTablaDto> tablaArticuloManufacturado() throws Exception {
         try {
-            List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findByEliminadoFalse();
-            Set<ArticuloManufacturadoTablaDto> dtos = new HashSet<>();
+            Set<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findByEliminadoFalse();
+            Set<ArticuloManufacturadoTablaDto> articulosDto = new HashSet<>();
 
             for (ArticuloManufacturado articulo : articulos) {
                 ArticuloManufacturadoTablaDto dto = new ArticuloManufacturadoTablaDto();
                 dto.setId(articulo.getId());
+                dto.setCodigo(articulo.getCodigo());
                 dto.setDenominacion(articulo.getDenominacion());
-                dto.setDescripcion(articulo.getDescripcion());
-                dto.setTiempoEstimadoMinutos(articulo.getTiempoEstimadoMinutos());
-                dto.setPrecioVenta(articulo.getPrecioVenta());
-                if (articulo.getCategoria() != null) {
-                    dto.setCategoriaDenominacion(articulo.getCategoria().getDenominacion());
+
+                // Convertir la imagen a base64
+                if (articulo.getImagenes() != null && !articulo.getImagenes().isEmpty()) {
+                    ImagenArticulo imagen = articulo.getImagenes().iterator().next();
+                    try {
+                        String imagenBase64 = imagenService.convertirImagenABase64Nueva(imagen.getUrl());
+                        dto.setImagen(imagenBase64);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-                dtos.add(dto);
+
+                dto.setPrecioVenta(articulo.getPrecioVenta());
+                dto.setDescripcion(articulo.getDescripcion());
+                dto.setTiempoEstimadoCocina(articulo.getTiempoEstimadoMinutos());
+
+                articulosDto.add(dto);
             }
 
-            return dtos;
-        } catch (Exception e) {
-            throw new Exception("Error al obtener la tabla de artículos manufacturados: " + e.getMessage());
+            return articulosDto;
+
+        }catch (Exception e){
+            throw new Exception(e);
         }
     }
+
 
     @Override
     public boolean reactivate(Long id) throws Exception {
         try {
-            Optional<ArticuloManufacturado> optionalArticulo = articuloManufacturadoRepository.findById(id);
-            if (optionalArticulo.isPresent()) {
-                ArticuloManufacturado articulo = optionalArticulo.get();
-                if (articulo.isEliminado()) {
-                    articulo.setEliminado(false);
-                    articuloManufacturadoRepository.save(articulo);
-                    return true;
-                } else {
-                    throw new Exception("El artículo manufacturado no está eliminado");
-                }
-            } else {
-                throw new Exception("No se encontró el artículo manufacturado con ID: " + id);
+            ArticuloManufacturado articuloManufacturado = articuloManufacturadoRepository.findById(id).orElse(null);
+            if (articuloManufacturado == null) {
+                throw new Exception("No se encontro el articulo");
             }
-        } catch (Exception e) {
-            throw new Exception("Error al reactivar el artículo manufacturado: " + e.getMessage());
+            articuloManufacturado.setEliminado(false);
+
+            for (ArticuloManufacturadoDetalle detalle : articuloManufacturado.getArticuloManufacturadoDetalles()) {
+                detalle.setEliminado(false);
+                detalleRepository.save(detalle);
+            }
+
+            for (ImagenArticulo imagen : articuloManufacturado.getImagenes()) {
+                imagen.setEliminado(false);
+                imagenRepository.save(imagen);
+            }
+
+            articuloManufacturadoRepository.save(articuloManufacturado);
+            return true;
+        }catch (Exception e){
+            throw new Exception(e);
         }
     }
 
@@ -157,46 +320,40 @@ public class ArticuloManufacturadoService implements IArticuloManufacturadoServi
         try {
             return articuloManufacturadoRepository.findAll();
         } catch (Exception e) {
-            throw new Exception("Error al obtener todos los artículos manufacturados: " + e.getMessage());
+            throw new Exception(e);
         }
     }
 
     @Override
     public ArticuloManufacturadoDto traerArticuloBase64(Long id) throws Exception {
         try {
-            Optional<ArticuloManufacturado> optionalArticulo = articuloManufacturadoRepository.findById(id);
-
-            if (optionalArticulo.isPresent()) {
-                ArticuloManufacturado articulo = optionalArticulo.get();
-                ArticuloManufacturadoDto dto = new ArticuloManufacturadoDto();
-                dto.setId(articulo.getId());
-                dto.setDenominacion(articulo.getDenominacion());
-                dto.setDescripcion(articulo.getDescripcion());
-                dto.setTiempoEstimadoMinutos(articulo.getTiempoEstimadoMinutos());
-                dto.setPreparacion(articulo.getPreparacion());
-                dto.setPrecioVenta(articulo.getPrecioVenta());
-
-                if (articulo.getCategoria() != null) {
-                    dto.setCategoriaId(articulo.getCategoria().getId());
-                }
-
-                // Aquí podrías agregar lógica para manejar imágenes en base64 si es necesario
-
-                return dto;
-            } else {
-                throw new Exception("No se encontró el artículo manufacturado con ID: " + id);
+            ArticuloManufacturado Manufacturado = articuloManufacturadoRepository.findByIdAndEliminadoFalse(id);
+            if (Manufacturado == null) {
+                throw new Exception("No se encontro el articulo");
             }
+
+
+            if (Manufacturado.getImagenes() != null) {
+                for (ImagenArticulo imagen : Manufacturado.getImagenes()) {
+                    try {
+                        String imagenBase64 = funcionalidades.convertirImagenABase64(imagen.getUrl());
+                        imagen.setUrl(imagenBase64);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            return mapeoDto.convertManufacturadoDto(Manufacturado);
         } catch (Exception e) {
-            throw new Exception("Error al obtener el artículo manufacturado con imágenes en base64: " + e.getMessage());
+            throw new Exception(e);
         }
     }
 
-    @Override
-    public List<ArticuloManufacturado> findByCategoriaId(Long categoriaId) throws Exception {
-        try {
-            return articuloManufacturadoRepository.findByCategoriaIdAndEliminadoFalse(categoriaId);
-        } catch (Exception e) {
-            throw new Exception("Error al buscar artículos manufacturados por categoría: " + e.getMessage());
-        }
-    }
+
+
+
+    //endregion
 }
+
+

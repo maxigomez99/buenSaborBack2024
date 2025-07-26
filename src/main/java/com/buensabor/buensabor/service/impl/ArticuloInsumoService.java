@@ -27,7 +27,7 @@ public class ArticuloInsumoService implements IArticuloInsumoService {
     @Autowired
     private IArticuloInsumoRepository articuloInsumoRepository;
     @Autowired
-    private IArticuloInsumoRepository imagenRepository;
+    private IImagenArticuloRepository imagenRepository;
     @Autowired
     private IArticuloManufacturadoDetalleRepository articuloManufacturadoRepository;
     @Autowired

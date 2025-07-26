@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/compra/productos")
-public class CompraProductosController {
+public class CompraProductoController {
     @Autowired
     private CompraProductoService compraProductosService;
 

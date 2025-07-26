@@ -1,6 +1,7 @@
 package com.buensabor.buensabor.dto.promocion;
 
 import com.buensabor.buensabor.dto.BaseDto;
+
 import com.buensabor.buensabor.dto.articuloManufacturado.ArticuloManufacturadoCantidadDto;
 import com.buensabor.buensabor.entities.ImagenPromocion;
 import com.buensabor.buensabor.entities.Sucursal;
