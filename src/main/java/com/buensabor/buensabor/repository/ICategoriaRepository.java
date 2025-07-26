@@ -47,4 +47,6 @@ public interface ICategoriaRepository extends JpaRepository<Categoria, Long> {
     Set<Categoria> findByCategoriaPadreIsNullAndEliminadoFalse();
 
     Set<Categoria> findBySucursales_IdAndEliminadoFalseAndCategoriaPadreIsNull(Long sucursalId);
+
+    Set<Categoria> findByCategoriaPadre_IdAndSucursales_IdAndEliminadoFalse(Long id, Long sucursalId);
 }

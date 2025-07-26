@@ -26,4 +26,5 @@ public interface ICategoriaService {
     public Categoria Actualizar(long id, Categoria categoria) throws Exception;
     public Set<CategoriaDto> traerCategoriaPadre(Long sucursalId) throws Exception;
     public boolean tieneSubCategorias(Long categoriaId) throws Exception;
+
 }
