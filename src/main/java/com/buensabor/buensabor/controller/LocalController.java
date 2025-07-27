@@ -109,6 +109,15 @@ public class LocalController {
         }
     }
 
+    @GetMapping("/articulo-insumo/sucursal/{sucursalId}/todos")
+    public ResponseEntity<?> traerTodosArticulosInsumoPorSucursal(@PathVariable Long sucursalId){
+        try {
+            return ResponseEntity.ok(localService.traerTodosArticulosInsumoPorSucursal(sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PutMapping("articulo/insumo/aumentarStock/{id}")
     public ResponseEntity<ArticuloInsumo> aumentarStock(@PathVariable Long id, @RequestParam Integer cantidad, @RequestParam Double nuevoPrecioVenta, @RequestParam Double nuevoPrecioCompra) {
         try {

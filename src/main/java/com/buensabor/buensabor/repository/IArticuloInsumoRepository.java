@@ -36,6 +36,14 @@ public interface IArticuloInsumoRepository extends JpaRepository<ArticuloInsumo,
             "LEFT JOIN FETCH ai.imagenes " +
             "WHERE ai.sucursal.id = :sucursalId AND ai.eliminado = false")
     Set<ArticuloInsumo> findBySucursal_Id(@Param("sucursalId") Long sucursalId);
+
+    @Query("SELECT ai FROM ArticuloInsumo ai " +
+            "LEFT JOIN FETCH ai.categoria " +
+            "LEFT JOIN FETCH ai.unidadMedida " +
+            "LEFT JOIN FETCH ai.imagenes " +
+            "WHERE ai.sucursal.id = :sucursalId")
+    Set<ArticuloInsumo> findAllBySucursal_Id(@Param("sucursalId") Long sucursalId);
+
     boolean existsByCodigoAndSucursal_Id(String codigo, Long sucursalId);
     boolean existsByDenominacionAndSucursal_Id(String denominacion, Long sucursalId);
 

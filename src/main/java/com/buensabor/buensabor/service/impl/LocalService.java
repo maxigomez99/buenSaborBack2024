@@ -401,6 +401,45 @@ public class LocalService {
         }
     }
 
+    public Set<ArticuloInsumoSimpleDto> traerTodosArticulosInsumoPorSucursal(Long sucursalId) throws Exception {
+        try {
+            // Usar findAllBySucursal_Id para traer todos los artículos, incluyendo eliminados
+            Set<ArticuloInsumo> articulos = articuloInsumoRepository.findAllBySucursal_Id(sucursalId);
+            Set<ArticuloInsumoSimpleDto> articulosDto = new HashSet<>();
+
+            for (ArticuloInsumo articulo : articulos) {
+                String imagenPrincipal = null;
+                if (articulo.getImagenes() != null && !articulo.getImagenes().isEmpty()) {
+                    String imagePath = articulo.getImagenes().iterator().next().getUrl();
+                    // Limpiar la ruta de la imagen como se hace en otros métodos
+                    imagenPrincipal = imagePath.replace("src\\main\\resources\\images\\", "");
+                }
+
+                ArticuloInsumoSimpleDto dto = ArticuloInsumoSimpleDto.builder()
+                        .id(articulo.getId())
+                        .denominacion(articulo.getDenominacion())
+                        .descripcion(articulo.getDescripcion())
+                        .codigo(articulo.getCodigo())
+                        .precioVenta(articulo.getPrecioVenta())
+                        .precioCompra(articulo.getPrecioCompra())
+                        .stockActual(articulo.getStockActual())
+                        .stockMaximo(articulo.getStockMaximo())
+                        .stockMinimo(articulo.getStockMinimo())
+                        .esParaElaborar(articulo.getEsParaElaborar())
+                        .unidadMedidaDenominacion(articulo.getUnidadMedida() != null ? articulo.getUnidadMedida().getDenominacion() : null)
+                        .categoriaDenominacion(articulo.getCategoria() != null ? articulo.getCategoria().getDenominacion() : null)
+                        .imagenPrincipal(imagenPrincipal)
+                        .eliminado(articulo.isEliminado())
+                        .build();
+                articulosDto.add(dto);
+            }
+
+            return articulosDto;
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
     public ArticuloInsumo aumentarStock(Long id, Integer cantidad, Double nuevoPrecioVenta, Double nuevoPrecioCompra) throws Exception {
         try {
             // Buscar el ArticuloInsumo en la base de datos

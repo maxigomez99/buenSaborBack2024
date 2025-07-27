@@ -242,4 +242,32 @@ public class ArticuloInsumoService implements IArticuloInsumoService {
         }
     }
 
+    @Override
+    public ArticuloInsumo toggleEstado(Long id) throws Exception {
+        try {
+            ArticuloInsumo articuloInsumo = articuloInsumoRepository.findById(id)
+                .orElseThrow(() -> new Exception("No se encontró el artículo insumo con id: " + id));
+
+            // Cambiar el estado de eliminado
+            articuloInsumo.setEliminado(!articuloInsumo.isEliminado());
+
+            // Si se está activando, también activar las imágenes asociadas
+            if (!articuloInsumo.isEliminado() && articuloInsumo.getImagenes() != null) {
+                for (ImagenArticulo imagen : articuloInsumo.getImagenes()) {
+                    imagen.setEliminado(false);
+                }
+            }
+            // Si se está desactivando, también desactivar las imágenes asociadas
+            else if (articuloInsumo.isEliminado() && articuloInsumo.getImagenes() != null) {
+                for (ImagenArticulo imagen : articuloInsumo.getImagenes()) {
+                    imagen.setEliminado(true);
+                }
+            }
+
+            return articuloInsumoRepository.save(articuloInsumo);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
 }

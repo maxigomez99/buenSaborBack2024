@@ -22,4 +22,5 @@ public class ArticuloInsumoSimpleDto {
     private String unidadMedidaDenominacion;
     private String categoriaDenominacion;
     private String imagenPrincipal; // Solo una imagen principal en lugar de todo el set
+    private Boolean eliminado; // Campo para indicar si el artículo está eliminado
 }
