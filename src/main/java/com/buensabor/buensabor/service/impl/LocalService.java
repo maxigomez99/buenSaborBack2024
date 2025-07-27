@@ -35,39 +35,32 @@ public class LocalService {
     //region  Categoria
     public Set<CategoriaDto> traerTodoCategoria(Long sucursalId) throws Exception {
         try {
-            Set<Categoria> listaCategoriaOriginal = categoriaRepository.findBySucursales_Id(sucursalId);
+            // Buscar solo las categorías de nivel superior (sin padre) asociadas a la sucursal y no eliminadas
+            Set<Categoria> listaCategoriaOriginal = categoriaRepository.findBySucursales_IdAndEliminadoFalseAndCategoriaPadreIsNull(sucursalId);
             Set<CategoriaDto> listaDto = new HashSet<>();
+
             for (Categoria categoria : listaCategoriaOriginal) {
-                // Solo agregar a la lista las categorías que no tienen una categoría padre
-                if (categoria.getCategoriaPadre() == null) {
-                    CategoriaDto categoriaDto = new CategoriaDto();
-                    categoriaDto.setDenominacion(categoria.getDenominacion());
-                    categoriaDto.setUrlIcono(categoria.getUrlIcono());
-                    categoriaDto.setId(categoria.getId());
-                    categoriaDto.setEliminado(categoria.isEliminado());
+                CategoriaDto categoriaDto = new CategoriaDto();
+                categoriaDto.setDenominacion(categoria.getDenominacion());
+                categoriaDto.setUrlIcono(categoria.getUrlIcono());
+                categoriaDto.setId(categoria.getId());
+                categoriaDto.setEliminado(categoria.isEliminado());
 
-
-                    for (Sucursal sucursal : categoria.getSucursales()) {
-                        SucursalSimpleDto sucursalSimpleDto = new SucursalSimpleDto();
-                        sucursalSimpleDto.setNombre(sucursal.getNombre());
-                        sucursalSimpleDto.setId(sucursal.getId());
-                        categoriaDto.getSucursales().add(sucursalSimpleDto);
-                    }
-
-                    Set<Categoria> subCategorias = categoriaRepository.findByCategoriaPadre_Id(categoria.getId());
-                    for (Categoria subCategoria : subCategorias) {
-                        if (subCategoria.getCategoriaPadre() != null && subCategoria.getCategoriaPadre().getId().equals(categoria.getId())) {
-                            for (Sucursal sucursal : subCategoria.getSucursales()){
-                                if (sucursal.getId().equals(sucursalId)){
-                                    SubCategoriaDto subCategoriaDto = agregarSubCategoriasRecursivamente(subCategoria, sucursalId);
-                                    categoriaDto.getSubCategoriaDtos().add(subCategoriaDto);
-                                }
-
-                            }
-                        }
-                    }
-                    listaDto.add(categoriaDto);
+                for (Sucursal sucursal : categoria.getSucursales()) {
+                    SucursalSimpleDto sucursalSimpleDto = new SucursalSimpleDto();
+                    sucursalSimpleDto.setNombre(sucursal.getNombre());
+                    sucursalSimpleDto.setId(sucursal.getId());
+                    categoriaDto.getSucursales().add(sucursalSimpleDto);
                 }
+
+                // Buscar y agregar subcategorías que no estén eliminadas
+                Set<Categoria> subCategorias = categoriaRepository.findByCategoriaPadre_IdAndSucursales_IdAndEliminadoFalse(categoria.getId(), sucursalId);
+                for (Categoria subCategoria : subCategorias) {
+                    SubCategoriaDto subCategoriaDto = agregarSubCategoriasRecursivamente(subCategoria, sucursalId);
+                    categoriaDto.getSubCategoriaDtos().add(subCategoriaDto);
+                }
+
+                listaDto.add(categoriaDto);
             }
             return listaDto;
         } catch (Exception e) {
@@ -145,24 +138,37 @@ public class LocalService {
     }
 
     public Categoria agregarSucursalACategoria(Long categoriaId, Long sucursalId) throws Exception {
-        Categoria categoria = categoriaRepository.findById(categoriaId).orElse(null);
-        Sucursal sucursal = sucursalRepository.findById(sucursalId).orElse(null);
+        Categoria categoria = categoriaRepository.findById(categoriaId)
+            .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
 
-        if (categoria == null || sucursal == null) {
-            throw new Exception("La categoría o la sucursal no existen");
-        }
+        Sucursal sucursal = sucursalRepository.findById(sucursalId)
+            .orElseThrow(() -> new RuntimeException("Sucursal no encontrada"));
 
-        categoria.getSucursales().add(sucursal);
-        agregarSucursalASubcategorias(categoria, sucursal);
+        // Asociar la categoría padre
+        asociarCategoriaASucursal(categoria, sucursal);
+
+        // Asociar recursivamente todas las subcategorías
+        asociarSubcategoriasRecursivamente(categoria, sucursal);
 
         return categoriaRepository.save(categoria);
     }
 
-    private void agregarSucursalASubcategorias(Categoria categoria, Sucursal sucursal) {
-        for (Categoria subCategoria : categoria.getSubCategorias()) {
-            subCategoria.getSucursales().add(sucursal);
+    private void asociarSubcategoriasRecursivamente(Categoria categoria, Sucursal sucursal) {
+        if (categoria.getSubCategorias() != null) {
+            for (Categoria subCategoria : categoria.getSubCategorias()) {
+                // Asociar la subcategoría actual
+                asociarCategoriaASucursal(subCategoria, sucursal);
 
-            agregarSucursalASubcategorias(subCategoria, sucursal);
+                // Llamada recursiva para las subcategorías de esta subcategoría
+                asociarSubcategoriasRecursivamente(subCategoria, sucursal);
+            }
+        }
+    }
+
+    private void asociarCategoriaASucursal(Categoria categoria, Sucursal sucursal) {
+        if (!categoria.getSucursales().contains(sucursal)) {
+            categoria.getSucursales().add(sucursal);
+            categoriaRepository.save(categoria);
         }
     }
 

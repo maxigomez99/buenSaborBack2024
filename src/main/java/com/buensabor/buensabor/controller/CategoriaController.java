@@ -23,7 +23,7 @@ import java.util.Set;
 // GET http://localhost:8080/api/categorias/
 
 @RestController
-@RequestMapping("/api/categorias")
+@RequestMapping("/api/categoria")
 public class CategoriaController {
     @Autowired
     private ICategoriaService categoriaService;

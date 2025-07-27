@@ -1,5 +1,6 @@
 package com.buensabor.buensabor.controller;
 
+
 import com.buensabor.buensabor.dto.articuloManufacturado.ArticuloManufacturadoTablaDto;
 import com.buensabor.buensabor.entities.ArticuloInsumo;
 import com.buensabor.buensabor.entities.ArticuloManufacturado;
@@ -16,11 +17,52 @@ public class LocalController {
     @Autowired
     private LocalService localService;
 
+    //region Categoria
 
+    @PostMapping("/agregarSucursalACategoria/{categoriaId}/{sucursalId}")
+    public ResponseEntity<?> agregarSucursalACategoria(@PathVariable Long categoriaId, @PathVariable Long sucursalId){
+        try {
+            return ResponseEntity.ok(localService.agregarSucursalACategoria(categoriaId, sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/desasociarSucursalDeCategoria/{categoriaId}/{sucursalId}")
+    public ResponseEntity<?> desasociarSucursalDeCategoria(@PathVariable Long categoriaId, @PathVariable Long sucursalId){
+        try {
+            return ResponseEntity.ok(localService.desasociarSucursalDeCategoria(categoriaId, sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+
+    @GetMapping("/categoria-porSucursal/{sucursalId}")
+    public ResponseEntity<?> traerTodo(@PathVariable Long sucursalId){
+        try {
+            return ResponseEntity.ok(localService.traerTodoCategoria(sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/categoria-noAsociadas/{sucursalId}/{empresaId}")
+    public ResponseEntity<?> traerCategoriasNoAsociadasASucursal(@PathVariable Long sucursalId, @PathVariable Long empresaId){
+        try {
+            return ResponseEntity.ok(localService.traerCategoriasNoAsociadasASucursal(sucursalId, empresaId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+    //endregion
 
     //region Promociones
 
-
+    @CrossOrigin(origins = "https://ecommerce-buen-sabor.vercel.app")
     @GetMapping("/promocion/activas")
     public ResponseEntity<?> traerTodo(){
         try {
@@ -58,7 +100,7 @@ public class LocalController {
     //endregion
 
     //region ArticuloInsumo
-    @GetMapping("/articulo-insumo/sucursal/{sucursalId}")
+    @GetMapping("/articulo/insumo/sucursal/{sucursalId}")
     public ResponseEntity<?> traerArticulosInsumoPorSucursal(@PathVariable Long sucursalId){
         try {
             return ResponseEntity.ok(localService.traerArticulosInsumoPorSucursal(sucursalId));
@@ -67,7 +109,7 @@ public class LocalController {
         }
     }
 
-    @PutMapping("articulo-insumo/aumentarStock/{id}")
+    @PutMapping("articulo/insumo/aumentarStock/{id}")
     public ResponseEntity<ArticuloInsumo> aumentarStock(@PathVariable Long id, @RequestParam Integer cantidad, @RequestParam Double nuevoPrecioVenta, @RequestParam Double nuevoPrecioCompra) {
         try {
             ArticuloInsumo articuloInsumo = localService.aumentarStock(id, cantidad, nuevoPrecioVenta, nuevoPrecioCompra);
@@ -82,7 +124,7 @@ public class LocalController {
 
     //region ArticuloManufacturado
 
-    @GetMapping("/articulo-manufacturado/sucursal/{sucursalId}")
+    @GetMapping("/articulo/manufacturado/sucursal/{sucursalId}")
     public ResponseEntity<List<ArticuloManufacturadoTablaDto>> buscarArticulosPorSucursal(@PathVariable Long sucursalId) {
         try {
             List<ArticuloManufacturadoTablaDto> articulos = localService.buscarArticulosPorSucursal(sucursalId);
