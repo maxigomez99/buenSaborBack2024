@@ -100,7 +100,7 @@ public class LocalController {
     //endregion
 
     //region ArticuloInsumo
-    @GetMapping("/articulo/insumo/sucursal/{sucursalId}")
+    @GetMapping("/articulo-insumo/sucursal/{sucursalId}")
     public ResponseEntity<?> traerArticulosInsumoPorSucursal(@PathVariable Long sucursalId){
         try {
             return ResponseEntity.ok(localService.traerArticulosInsumoPorSucursal(sucursalId));
