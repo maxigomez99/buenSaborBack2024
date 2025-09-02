@@ -352,7 +352,19 @@ public class ArticuloManufacturadoService implements IArticuloManufacturadoServi
         }
     }
 
+    @Override
+    public ArticuloManufacturado toggleEstado(Long id) throws Exception {
+        try {
+            ArticuloManufacturado articulo = articuloManufacturadoRepository.findById(id)
+                    .orElseThrow(() -> new Exception("Artículo manufacturado no encontrado"));
 
+            articulo.setEliminado(!articulo.isEliminado());
+            return articuloManufacturadoRepository.save(articulo);
+
+        } catch (Exception e) {
+            throw new Exception("Error al cambiar estado del artículo: " + e.getMessage());
+        }
+    }
 
 
     //endregion

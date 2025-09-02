@@ -17,4 +17,5 @@ public interface IArticuloManufacturadoService {
     public boolean reactivate(Long id) throws Exception;
     public List<ArticuloManufacturado> traerTodos() throws Exception;
     public ArticuloManufacturadoDto traerArticuloBase64(Long id) throws Exception;
+    ArticuloManufacturado toggleEstado(Long id) throws Exception;
 }

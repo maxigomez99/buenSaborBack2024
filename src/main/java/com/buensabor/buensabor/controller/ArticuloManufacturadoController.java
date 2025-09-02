@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/articulos-manufacturados")
@@ -102,6 +103,24 @@ public class ArticuloManufacturadoController {
     public ResponseEntity<?> traerManufacturadoBase64(@PathVariable Long id) {
         try {
             return ResponseEntity.ok().body(articuloManufacturadoService.traerArticuloBase64(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/toggle-estado")
+//@PreAuthorize("hasAuthority('EMPLEADO_COCINA') or hasAuthority('ADMINISTRADOR')")
+    public ResponseEntity<?> toggleEstado(@PathVariable Long id) {
+        try {
+            ArticuloManufacturado articuloActualizado = articuloManufacturadoService.toggleEstado(id);
+            String mensaje = articuloActualizado.isEliminado() ?
+                    "Artículo manufacturado desactivado exitosamente" :
+                    "Artículo manufacturado activado exitosamente";
+
+            return ResponseEntity.ok().body(Map.of(
+                    "mensaje", mensaje,
+                    "articuloManufacturado", articuloActualizado
+            ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
