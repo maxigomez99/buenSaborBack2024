@@ -16,6 +16,6 @@ public class ArticuloManufacturadoTablaDto extends BaseDto {
     private String imagen;
     private Double precioVenta;
     private String descripcion;
-    private Integer tiempoEstimadoCocina;
+    private Integer tiempoEstimadoMinutos;
     private String preparacion;
 }

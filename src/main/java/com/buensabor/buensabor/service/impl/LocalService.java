@@ -504,7 +504,7 @@ public class LocalService {
 
         dto.setPrecioVenta(articulo.getPrecioVenta());
         dto.setDescripcion(articulo.getDescripcion());
-        dto.setTiempoEstimadoCocina(articulo.getTiempoEstimadoMinutos());
+        dto.setTiempoEstimadoMinutos(articulo.getTiempoEstimadoMinutos());
         return dto;
     }
 

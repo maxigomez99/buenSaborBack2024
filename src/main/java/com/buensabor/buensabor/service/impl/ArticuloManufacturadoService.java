@@ -235,9 +235,11 @@ public class ArticuloManufacturadoService implements IArticuloManufacturadoServi
                     }
                 }
             }
+            // ELIMINAR ESTAS DOS LÍNEAS:
+            // articuloManufacturado.setPrecioVenta(articuloManufacturadoViejo.getPrecioVenta());
+            // articuloManufacturado.setTiempoEstimadoMinutos(articuloManufacturadoViejo.getTiempoEstimadoMinutos());
 
-            articuloManufacturado.setPrecioVenta(articuloManufacturadoViejo.getPrecioVenta());
-            articuloManufacturado.setTiempoEstimadoMinutos(articuloManufacturadoViejo.getTiempoEstimadoMinutos());
+
             articuloManufacturado.setSucursal(articuloManufacturadoViejo.getSucursal());
             ArticuloManufacturadoDto dto= mapeoDto.convertManufacturadoDto(articuloManufacturadoRepository.save(articuloManufacturado));
             return dto;
@@ -276,7 +278,7 @@ public class ArticuloManufacturadoService implements IArticuloManufacturadoServi
 
                 dto.setPrecioVenta(articulo.getPrecioVenta());
                 dto.setDescripcion(articulo.getDescripcion());
-                dto.setTiempoEstimadoCocina(articulo.getTiempoEstimadoMinutos());
+                dto.setTiempoEstimadoMinutos(articulo.getTiempoEstimadoMinutos());
 
                 articulosDto.add(dto);
             }
