@@ -1,6 +1,6 @@
 package com.buensabor.buensabor.service.impl;
 
-import com.buensabor.buensabor.dto.articuloInsumo.ArticuloInsumoSimpleDto;
+
 import com.buensabor.buensabor.dto.articuloManufacturado.ArticuloManufacturadoTablaDto;
 import com.buensabor.buensabor.dto.categoria.CategoriaDto;
 import com.buensabor.buensabor.dto.categoria.SubCategoriaDto;
@@ -278,7 +278,7 @@ public class LocalService {
 
                 if (promocion.getImagen() != null && !promocion.getImagen().isEmpty()) {
                     String imagePath = promocion.getImagen();
-                    imagePath = imagePath.replace("src\\main\\resources\\images\\", "");
+                    imagePath = imagePath.replace("src\\main\\resources\\img\\", "");
                     promocion.setImagen(imagePath);
                 }
 
@@ -364,77 +364,11 @@ public class LocalService {
 //endregion
 
     //region Articulos Insumos
-    public Set<ArticuloInsumoSimpleDto> traerArticulosInsumoPorSucursal(Long sucursalId) throws Exception {
+
+
+    public Set<ArticuloInsumo> traerArticulosInsumoPorSucursal(Long sucursalId) throws Exception {
         try {
-            Set<ArticuloInsumo> articulos = articuloInsumoRepository.findBySucursal_Id(sucursalId);
-            Set<ArticuloInsumoSimpleDto> articulosDto = new HashSet<>();
-
-            for (ArticuloInsumo articulo : articulos) {
-                String imagenPrincipal = null;
-                if (articulo.getImagenes() != null && !articulo.getImagenes().isEmpty()) {
-                    String imagePath = articulo.getImagenes().iterator().next().getUrl();
-                    // Limpiar la ruta de la imagen como se hace en otros métodos
-                    imagenPrincipal = imagePath.replace("src\\main\\resources\\images\\", "");
-                }
-
-                ArticuloInsumoSimpleDto dto = ArticuloInsumoSimpleDto.builder()
-                        .id(articulo.getId())
-                        .denominacion(articulo.getDenominacion())
-                        .descripcion(articulo.getDescripcion())
-                        .codigo(articulo.getCodigo())
-                        .precioVenta(articulo.getPrecioVenta())
-                        .precioCompra(articulo.getPrecioCompra())
-                        .stockActual(articulo.getStockActual())
-                        .stockMaximo(articulo.getStockMaximo())
-                        .stockMinimo(articulo.getStockMinimo())
-                        .esParaElaborar(articulo.getEsParaElaborar())
-                        .unidadMedidaDenominacion(articulo.getUnidadMedida() != null ? articulo.getUnidadMedida().getDenominacion() : null)
-                        .categoriaDenominacion(articulo.getCategoria() != null ? articulo.getCategoria().getDenominacion() : null)
-                        .imagenPrincipal(imagenPrincipal)
-                        .build();
-                articulosDto.add(dto);
-            }
-
-            return articulosDto;
-        }catch (Exception e){
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    public Set<ArticuloInsumoSimpleDto> traerTodosArticulosInsumoPorSucursal(Long sucursalId) throws Exception {
-        try {
-            // Usar findAllBySucursal_Id para traer todos los artículos, incluyendo eliminados
-            Set<ArticuloInsumo> articulos = articuloInsumoRepository.findAllBySucursal_Id(sucursalId);
-            Set<ArticuloInsumoSimpleDto> articulosDto = new HashSet<>();
-
-            for (ArticuloInsumo articulo : articulos) {
-                String imagenPrincipal = null;
-                if (articulo.getImagenes() != null && !articulo.getImagenes().isEmpty()) {
-                    String imagePath = articulo.getImagenes().iterator().next().getUrl();
-                    // Limpiar la ruta de la imagen como se hace en otros métodos
-                    imagenPrincipal = imagePath.replace("src\\main\\resources\\images\\", "");
-                }
-
-                ArticuloInsumoSimpleDto dto = ArticuloInsumoSimpleDto.builder()
-                        .id(articulo.getId())
-                        .denominacion(articulo.getDenominacion())
-                        .descripcion(articulo.getDescripcion())
-                        .codigo(articulo.getCodigo())
-                        .precioVenta(articulo.getPrecioVenta())
-                        .precioCompra(articulo.getPrecioCompra())
-                        .stockActual(articulo.getStockActual())
-                        .stockMaximo(articulo.getStockMaximo())
-                        .stockMinimo(articulo.getStockMinimo())
-                        .esParaElaborar(articulo.getEsParaElaborar())
-                        .unidadMedidaDenominacion(articulo.getUnidadMedida() != null ? articulo.getUnidadMedida().getDenominacion() : null)
-                        .categoriaDenominacion(articulo.getCategoria() != null ? articulo.getCategoria().getDenominacion() : null)
-                        .imagenPrincipal(imagenPrincipal)
-                        .eliminado(articulo.isEliminado())
-                        .build();
-                articulosDto.add(dto);
-            }
-
-            return articulosDto;
+            return articuloInsumoRepository.findBySucursal_Id(sucursalId);
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
@@ -498,7 +432,7 @@ public class LocalService {
         if (!articulo.getImagenes().isEmpty()) {
             ImagenArticulo primeraImagen = articulo.getImagenes().iterator().next();
             String imagePath = primeraImagen.getUrl();
-            imagePath = imagePath.replace("src\\main\\resources\\images\\", "");
+            imagePath = imagePath.replace("src\\main\\resources\\img\\", "");
             dto.setImagen(imagePath);
         }
 

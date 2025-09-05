@@ -4,7 +4,6 @@ package com.buensabor.buensabor.repository;
 import com.buensabor.buensabor.entities.ArticuloInsumo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -30,20 +29,7 @@ public interface IArticuloInsumoRepository extends JpaRepository<ArticuloInsumo,
     boolean existsByDenominacionAndEliminadoFalseAndIdNot(String denominacion, Long id);
     //endregion
 
-    @Query("SELECT ai FROM ArticuloInsumo ai " +
-            "LEFT JOIN FETCH ai.categoria " +
-            "LEFT JOIN FETCH ai.unidadMedida " +
-            "LEFT JOIN FETCH ai.imagenes " +
-            "WHERE ai.sucursal.id = :sucursalId AND ai.eliminado = false")
-    Set<ArticuloInsumo> findBySucursal_Id(@Param("sucursalId") Long sucursalId);
-
-    @Query("SELECT ai FROM ArticuloInsumo ai " +
-            "LEFT JOIN FETCH ai.categoria " +
-            "LEFT JOIN FETCH ai.unidadMedida " +
-            "LEFT JOIN FETCH ai.imagenes " +
-            "WHERE ai.sucursal.id = :sucursalId")
-    Set<ArticuloInsumo> findAllBySucursal_Id(@Param("sucursalId") Long sucursalId);
-
+    Set<ArticuloInsumo> findBySucursal_Id(Long sucursalId);
     boolean existsByCodigoAndSucursal_Id(String codigo, Long sucursalId);
     boolean existsByDenominacionAndSucursal_Id(String denominacion, Long sucursalId);
 

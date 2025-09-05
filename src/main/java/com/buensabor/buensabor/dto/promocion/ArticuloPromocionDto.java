@@ -28,7 +28,7 @@ public class ArticuloPromocionDto extends BaseDto {
     public void setImagenesConRutaModificada(Set<ImagenArticulo> imagenesOriginales) {
         this.imagenes = imagenesOriginales.stream()
                 .map(imagen -> {
-                    String urlModificada = imagen.getUrl().replace("src\\main\\resources\\images\\", "");
+                    String urlModificada = imagen.getUrl().replace("src\\main\\resources\\img\\", "");
                     ImagenArticulo imagenModificada = new ImagenArticulo();
                     imagenModificada.setUrl(urlModificada);
                     imagenModificada.setArticulo(imagen.getArticulo());
