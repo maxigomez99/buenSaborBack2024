@@ -3,6 +3,7 @@ package com.buensabor.buensabor.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -20,5 +21,6 @@ public class TipoPromocion extends Base {
     private String descripcion;
 
     @OneToMany(mappedBy = "tipoPromocion")
+    @JsonIgnore
     private List<Promocion> promociones;
 }

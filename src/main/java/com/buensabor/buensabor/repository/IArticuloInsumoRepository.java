@@ -48,6 +48,14 @@ public interface IArticuloInsumoRepository extends JpaRepository<ArticuloInsumo,
     boolean existsByDenominacionAndSucursal_Id(String denominacion, Long sucursalId);
 
     List<ArticuloInsumo> findByCategoriaIdAndEliminadoFalse(Long categoriaId);
+
     @Query("SELECT ai FROM ArticuloInsumo ai WHERE ai.stockActual > 0 AND ai.sucursal.id = :sucursalId")
-    List<ArticuloInsumo> findInsumosConStockPorSucursal(Long sucursalId);
+    Set<ArticuloInsumo> findByStockActualGreaterThanZeroAndSucursal_Id(@Param("sucursalId") Long sucursalId);
+
+    // Método para estadísticas - obtener insumos con stock por sucursal
+    @Query("SELECT ai FROM ArticuloInsumo ai WHERE ai.stockActual > 0 AND ai.sucursal.id = :sucursalId AND ai.eliminado = false")
+    List<ArticuloInsumo> findInsumosConStockPorSucursal(@Param("sucursalId") Long sucursalId);
+
+    // Método para obtener insumos no eliminados y que no sean para elaborar
+    List<ArticuloInsumo> findByEliminadoFalseAndEsParaElaborarFalse();
 }
