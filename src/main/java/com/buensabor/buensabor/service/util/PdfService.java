@@ -40,7 +40,7 @@ public class PdfService {
         document.add(emptyParagraph);
 
 
-        String logoPath = "src/main/resources/images/logo.png";
+        String logoPath = "src/main/resources/img/logo.png";
         File logoFile = new File(logoPath);
         if (logoFile.exists()) {
             try {

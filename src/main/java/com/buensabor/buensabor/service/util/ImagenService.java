@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 @Service
 public class ImagenService {
 
-    private final Path root = Paths.get("src/main/resources/images");
+    private final Path root = Paths.get("src/main/resources/img");
 
     public String saveImage(MultipartFile imageFile) throws IOException {
         if (!Files.exists(root)) {

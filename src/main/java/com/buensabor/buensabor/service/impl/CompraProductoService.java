@@ -106,7 +106,7 @@ public class CompraProductoService {
         List<ImagenArticulo> processedImages = new ArrayList<>();
         for (ImagenArticulo imagen : articulo.getImagenes()) {
             String imagePath = imagen.getUrl();
-            imagePath = imagePath.replace("src\\main\\resources\\images\\", "");
+            imagePath = imagePath.replace("src\\main\\resources\\img\\", "");
             imagen.setUrl(imagePath);
             processedImages.add(imagen);
         }

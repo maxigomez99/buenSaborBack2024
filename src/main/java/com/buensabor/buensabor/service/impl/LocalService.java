@@ -1,7 +1,9 @@
 package com.buensabor.buensabor.service.impl;
 
-import com.buensabor.buensabor.dto.articuloInsumo.ArticuloInsumoSimpleDto;
+
 import com.buensabor.buensabor.dto.articuloManufacturado.ArticuloManufacturadoTablaDto;
+import com.buensabor.buensabor.dto.articuloInsumo.ArticuloInsumoTablaDto;
+import com.buensabor.buensabor.dto.articulo.InsumoSimpleDto;
 import com.buensabor.buensabor.dto.categoria.CategoriaDto;
 import com.buensabor.buensabor.dto.categoria.SubCategoriaDto;
 import com.buensabor.buensabor.dto.promocion.ArticuloPromocionDto;
@@ -278,7 +280,7 @@ public class LocalService {
 
                 if (promocion.getImagen() != null && !promocion.getImagen().isEmpty()) {
                     String imagePath = promocion.getImagen();
-                    imagePath = imagePath.replace("src\\main\\resources\\images\\", "");
+                    imagePath = imagePath.replace("src\\main\\resources\\img\\", "");
                     promocion.setImagen(imagePath);
                 }
 
@@ -364,77 +366,11 @@ public class LocalService {
 //endregion
 
     //region Articulos Insumos
-    public Set<ArticuloInsumoSimpleDto> traerArticulosInsumoPorSucursal(Long sucursalId) throws Exception {
+
+
+    public Set<ArticuloInsumo> traerArticulosInsumoPorSucursal(Long sucursalId) throws Exception {
         try {
-            Set<ArticuloInsumo> articulos = articuloInsumoRepository.findBySucursal_Id(sucursalId);
-            Set<ArticuloInsumoSimpleDto> articulosDto = new HashSet<>();
-
-            for (ArticuloInsumo articulo : articulos) {
-                String imagenPrincipal = null;
-                if (articulo.getImagenes() != null && !articulo.getImagenes().isEmpty()) {
-                    String imagePath = articulo.getImagenes().iterator().next().getUrl();
-                    // Limpiar la ruta de la imagen como se hace en otros métodos
-                    imagenPrincipal = imagePath.replace("src\\main\\resources\\images\\", "");
-                }
-
-                ArticuloInsumoSimpleDto dto = ArticuloInsumoSimpleDto.builder()
-                        .id(articulo.getId())
-                        .denominacion(articulo.getDenominacion())
-                        .descripcion(articulo.getDescripcion())
-                        .codigo(articulo.getCodigo())
-                        .precioVenta(articulo.getPrecioVenta())
-                        .precioCompra(articulo.getPrecioCompra())
-                        .stockActual(articulo.getStockActual())
-                        .stockMaximo(articulo.getStockMaximo())
-                        .stockMinimo(articulo.getStockMinimo())
-                        .esParaElaborar(articulo.getEsParaElaborar())
-                        .unidadMedidaDenominacion(articulo.getUnidadMedida() != null ? articulo.getUnidadMedida().getDenominacion() : null)
-                        .categoriaDenominacion(articulo.getCategoria() != null ? articulo.getCategoria().getDenominacion() : null)
-                        .imagenPrincipal(imagenPrincipal)
-                        .build();
-                articulosDto.add(dto);
-            }
-
-            return articulosDto;
-        }catch (Exception e){
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    public Set<ArticuloInsumoSimpleDto> traerTodosArticulosInsumoPorSucursal(Long sucursalId) throws Exception {
-        try {
-            // Usar findAllBySucursal_Id para traer todos los artículos, incluyendo eliminados
-            Set<ArticuloInsumo> articulos = articuloInsumoRepository.findAllBySucursal_Id(sucursalId);
-            Set<ArticuloInsumoSimpleDto> articulosDto = new HashSet<>();
-
-            for (ArticuloInsumo articulo : articulos) {
-                String imagenPrincipal = null;
-                if (articulo.getImagenes() != null && !articulo.getImagenes().isEmpty()) {
-                    String imagePath = articulo.getImagenes().iterator().next().getUrl();
-                    // Limpiar la ruta de la imagen como se hace en otros métodos
-                    imagenPrincipal = imagePath.replace("src\\main\\resources\\images\\", "");
-                }
-
-                ArticuloInsumoSimpleDto dto = ArticuloInsumoSimpleDto.builder()
-                        .id(articulo.getId())
-                        .denominacion(articulo.getDenominacion())
-                        .descripcion(articulo.getDescripcion())
-                        .codigo(articulo.getCodigo())
-                        .precioVenta(articulo.getPrecioVenta())
-                        .precioCompra(articulo.getPrecioCompra())
-                        .stockActual(articulo.getStockActual())
-                        .stockMaximo(articulo.getStockMaximo())
-                        .stockMinimo(articulo.getStockMinimo())
-                        .esParaElaborar(articulo.getEsParaElaborar())
-                        .unidadMedidaDenominacion(articulo.getUnidadMedida() != null ? articulo.getUnidadMedida().getDenominacion() : null)
-                        .categoriaDenominacion(articulo.getCategoria() != null ? articulo.getCategoria().getDenominacion() : null)
-                        .imagenPrincipal(imagenPrincipal)
-                        .eliminado(articulo.isEliminado())
-                        .build();
-                articulosDto.add(dto);
-            }
-
-            return articulosDto;
+            return articuloInsumoRepository.findBySucursal_Id(sucursalId);
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
@@ -458,6 +394,97 @@ public class LocalService {
             return articuloInsumoRepository.save(articuloInsumo);
         } catch (Exception e) {
             throw new Exception("Error al aumentar el stock y actualizar los precios: " + e.getMessage());
+        }
+    }
+
+    public List<ArticuloInsumoTablaDto> traerArticulosInsumoPorSucursalDto(Long sucursalId) throws Exception {
+        try {
+            Set<ArticuloInsumo> insumos = articuloInsumoRepository.findBySucursal_Id(sucursalId);
+            List<ArticuloInsumoTablaDto> dtos = new ArrayList<>();
+            for (ArticuloInsumo insumo : insumos) {
+                ArticuloInsumoTablaDto dto = new ArticuloInsumoTablaDto();
+                dto.setId(insumo.getId());
+                dto.setCodigo(insumo.getCodigo());
+                dto.setDenominacion(insumo.getDenominacion());
+                dto.setDescripcion(insumo.getDescripcion());
+                dto.setEliminado(false); // O ajusta según tu modelo
+                dto.setPrecioVenta(insumo.getPrecioVenta());
+                dto.setStockActual(insumo.getStockActual());
+                dto.setStockMaximo(insumo.getStockMaximo());
+                dto.setStockMinimo(insumo.getStockMinimo());
+                dto.setPrecioCompra(insumo.getPrecioCompra());
+                dto.setEsParaElaborar(insumo.getEsParaElaborar());
+                if (insumo.getImagenes() != null && !insumo.getImagenes().isEmpty()) {
+                    String imagePath = insumo.getImagenes().iterator().next().getUrl();
+                    imagePath = imagePath.replace("src/main/resources/img/", "");
+                    dto.setImagen(imagePath);
+                }
+                // Agrego la unidad de medida (nombre)
+                // unidadMedida: id, unidadMedidaDenominacion: denominacion
+                if (insumo.getUnidadMedida() != null) {
+                    dto.setUnidadMedida(insumo.getUnidadMedida().getId());
+                    dto.setUnidadMedidaDenominacion(insumo.getUnidadMedida().getDenominacion());
+                }
+                // categoria: id, categoriaDenominacion: denominacion
+                if (insumo.getCategoria() != null) {
+                    dto.setCategoria(insumo.getCategoria().getId());
+                    dto.setCategoriaDenominacion(insumo.getCategoria().getDenominacion());
+                }
+                // eliminado: devuelve el valor directo de la base de datos
+                dto.setEliminado(insumo.isEliminado());
+                dtos.add(dto);
+            }
+            return dtos;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    // Método para buscar insumos por sucursal
+    public List<InsumoSimpleDto> buscarInsumosPorSucursal(Long sucursalId) throws Exception {
+        try {
+            List<ArticuloInsumo> insumos = articuloInsumoRepository.findBySucursalId(sucursalId);
+            List<InsumoSimpleDto> dtos = new ArrayList<>();
+            for (ArticuloInsumo insumo : insumos) {
+                InsumoSimpleDto dto = new InsumoSimpleDto();
+                dto.setId(insumo.getId());
+                dto.setCodigo(insumo.getCodigo());
+                dto.setDenominacion(insumo.getDenominacion());
+                dto.setDescripcion(insumo.getDescripcion());
+                dto.setPrecioVenta(insumo.getPrecioVenta());
+                dto.setStockActual(insumo.getStockActual());
+                dto.setStockMaximo(insumo.getStockMaximo());
+                dto.setStockMinimo(insumo.getStockMinimo());
+                dto.setPrecioCompra(insumo.getPrecioCompra());
+                dto.setEsParaElaborar(insumo.getEsParaElaborar());
+
+                // Manejo de imagen
+                if (insumo.getImagenes() != null && !insumo.getImagenes().isEmpty()) {
+                    String imagePath = insumo.getImagenes().iterator().next().getUrl();
+                    imagePath = imagePath.replace("src/main/resources/img/", "");
+                    dto.setImagen(imagePath);
+                }
+
+                // unidadMedida: id, unidadMedidaDenominacion: denominacion
+                if (insumo.getUnidadMedida() != null) {
+                    dto.setUnidadMedida(insumo.getUnidadMedida().getId());
+                    dto.setUnidadMedidaDenominacion(insumo.getUnidadMedida().getDenominacion());
+                }
+
+                // categoria: id, categoriaDenominacion: denominacion
+                if (insumo.getCategoria() != null) {
+                    dto.setCategoria(insumo.getCategoria().getId());
+                    dto.setCategoriaDenominacion(insumo.getCategoria().getDenominacion());
+                }
+
+                // eliminado: devuelve el valor directo de la base de datos como Boolean
+                dto.setEliminado(insumo.isEliminado());
+
+                dtos.add(dto);
+            }
+            return dtos;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -498,7 +525,7 @@ public class LocalService {
         if (!articulo.getImagenes().isEmpty()) {
             ImagenArticulo primeraImagen = articulo.getImagenes().iterator().next();
             String imagePath = primeraImagen.getUrl();
-            imagePath = imagePath.replace("src\\main\\resources\\images\\", "");
+            imagePath = imagePath.replace("src\\main\\resources\\img\\", "");
             dto.setImagen(imagePath);
         }
 
