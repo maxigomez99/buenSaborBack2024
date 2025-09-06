@@ -4,6 +4,7 @@ package com.buensabor.buensabor.controller;
 
 import com.buensabor.buensabor.dto.promocion.PromocionDto;
 import com.buensabor.buensabor.entities.Promocion;
+import com.buensabor.buensabor.enums.TipoPromocion;
 import com.buensabor.buensabor.errores.ApiError;
 import com.buensabor.buensabor.repository.IPromocionDetalleRepository;
 import com.buensabor.buensabor.service.IPromocionService;
@@ -119,7 +120,9 @@ public class PromocionController {
             return new ResponseEntity<>(apiError, apiError.getStatus());
         }
     }
-
+    @GetMapping("/tipos-promocion")
+    public ResponseEntity<?> getTiposPromocion() {
+        return ResponseEntity.ok(TipoPromocion.values());
+    }
 
 }
-
