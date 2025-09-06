@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 public class UsuarioEmpleado extends Base {
     private String username;
     private String password;
-    private String auth0Id;
+
 
     private Empleado empleado;
 }

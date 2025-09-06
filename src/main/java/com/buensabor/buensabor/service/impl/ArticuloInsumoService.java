@@ -242,9 +242,10 @@ public class ArticuloInsumoService implements IArticuloInsumoService {
                     }
                 }
             }
-            articuloInsumo.setPrecioCompra(articuloInsumoViejo.getPrecioCompra());
-            articuloInsumo.setPrecioVenta(articuloInsumoViejo.getPrecioVenta());
-            articuloInsumo.setStockActual(articuloInsumoViejo.getStockActual());
+            // Elimino las líneas que sobrescribían los valores del frontend
+            // articuloInsumo.setPrecioCompra(articuloInsumoViejo.getPrecioCompra());
+            // articuloInsumo.setPrecioVenta(articuloInsumoViejo.getPrecioVenta());
+            // articuloInsumo.setStockActual(articuloInsumoViejo.getStockActual());
             articuloInsumo.setSucursal(articuloInsumoViejo.getSucursal());
 
             return articuloInsumoRepository.save(articuloInsumo);
