@@ -34,10 +34,13 @@ public interface IArticuloInsumoRepository extends JpaRepository<ArticuloInsumo,
     //endregion
 
     List<ArticuloInsumo> findByCategoriaIdAndEliminadoFalse(Long categoriaId);
+
     @Query("SELECT ai FROM ArticuloInsumo ai WHERE ai.stockActual > 0 AND ai.sucursal.id = :sucursalId")
+
     List<ArticuloInsumo> findInsumosConStockPorSucursal(Long sucursalId);
 
     // Métodos para validar código y denominación por sucursal
     boolean existsByCodigoAndSucursal_Id(String codigo, Long sucursalId);
     boolean existsByDenominacionAndSucursal_Id(String denominacion, Long sucursalId);
+
 }
