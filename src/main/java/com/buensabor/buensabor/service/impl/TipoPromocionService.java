@@ -1,6 +1,5 @@
 package com.buensabor.buensabor.service.impl;
 
-import com.buensabor.buensabor.entities.TipoPromocion;
 import com.buensabor.buensabor.repository.ITipoPromocionRepository;
 import com.buensabor.buensabor.service.ITipoPromocionService;
 import org.springframework.beans.factory.annotation.Autowired;

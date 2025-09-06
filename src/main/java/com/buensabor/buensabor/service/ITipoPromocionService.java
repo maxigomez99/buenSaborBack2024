@@ -1,7 +1,5 @@
 package com.buensabor.buensabor.service;
 
-import com.buensabor.buensabor.entities.TipoPromocion;
-
 import java.util.List;
 
 public interface ITipoPromocionService {

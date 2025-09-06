@@ -1,6 +1,5 @@
 package com.buensabor.buensabor.controller;
 
-import com.buensabor.buensabor.entities.TipoPromocion;
 import com.buensabor.buensabor.service.ITipoPromocionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
