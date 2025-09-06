@@ -13,12 +13,5 @@ public interface IArticuloInsumoService {
     public boolean reactivate(Long id) throws Exception;
     public List<ArticuloInsumo> traerTodo() throws Exception;
     public ArticuloInsumo toggleEstado(Long id) throws Exception;
-
-    // Nuevos métodos para manejar imágenes en base64
-    public ArticuloInsumo cargarConImagenesBase64(ArticuloInsumo articuloInsumo) throws Exception;
-    public ArticuloInsumo actualizarConImagenesBase64(Long id, ArticuloInsumo articuloInsumo) throws Exception;
-    public ArticuloInsumo buscarPorIdBase64(Long id) throws Exception;
-
-    class IArticuloManufacturadoDetalleService {
-    }
 }
+

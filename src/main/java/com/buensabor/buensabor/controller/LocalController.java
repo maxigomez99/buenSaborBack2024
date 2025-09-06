@@ -100,25 +100,16 @@ public class LocalController {
     //endregion
 
     //region ArticuloInsumo
-    @GetMapping("/articulo-insumo/sucursal/{sucursalId}")
+    @GetMapping("/articulo/insumo/sucursal/{sucursalId}")
     public ResponseEntity<?> traerArticulosInsumoPorSucursal(@PathVariable Long sucursalId){
         try {
-            return ResponseEntity.ok(localService.traerArticulosInsumoPorSucursal(sucursalId));
+            return ResponseEntity.ok(localService.buscarInsumosPorSucursal(sucursalId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/articulo-insumo/sucursal/{sucursalId}/todos")
-    public ResponseEntity<?> traerTodosArticulosInsumoPorSucursal(@PathVariable Long sucursalId){
-        try {
-            return ResponseEntity.ok(localService.traerTodosArticulosInsumoPorSucursal(sucursalId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @PutMapping("articulo/insumo/aumentarStock/{id}")
+    @PutMapping("/articulo/insumo/aumentarStock/{id}")
     public ResponseEntity<ArticuloInsumo> aumentarStock(@PathVariable Long id, @RequestParam Integer cantidad, @RequestParam Double nuevoPrecioVenta, @RequestParam Double nuevoPrecioCompra) {
         try {
             ArticuloInsumo articuloInsumo = localService.aumentarStock(id, cantidad, nuevoPrecioVenta, nuevoPrecioCompra);

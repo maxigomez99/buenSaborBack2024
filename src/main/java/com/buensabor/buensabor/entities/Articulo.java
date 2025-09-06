@@ -41,7 +41,4 @@ public abstract class Articulo extends Base{
 
     @ManyToOne
     private Sucursal sucursal;
-
-
-
 }
