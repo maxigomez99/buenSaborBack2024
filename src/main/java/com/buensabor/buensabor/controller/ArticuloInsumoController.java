@@ -104,4 +104,22 @@ public class ArticuloInsumoController {
         }
     }
 
+    @PatchMapping("/{id}/toggle-estado")
+    //@PreAuthorize("hasAuthority('EMPLEADO_COCINA') or hasAuthority('ADMINISTRADOR')")
+    public ResponseEntity<?> toggleEstado(@PathVariable Long id) {
+        try {
+            ArticuloInsumo articuloActualizado = articuloInsumoService.toggleEstado(id);
+            String mensaje = articuloActualizado.isEliminado() ?
+                    "Artículo insumo desactivado exitosamente" :
+                    "Artículo insumo activado exitosamente";
+
+            return ResponseEntity.ok().body(Map.of(
+                    "mensaje", mensaje,
+                    "articuloInsumo", articuloActualizado
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

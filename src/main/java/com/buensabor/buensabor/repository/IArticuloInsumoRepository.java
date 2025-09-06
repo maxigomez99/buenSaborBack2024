@@ -24,16 +24,20 @@ public interface IArticuloInsumoRepository extends JpaRepository<ArticuloInsumo,
 
     List<ArticuloInsumo> findByCategoriaId(Long categoriaId);
 
+    // Método para buscar insumos por sucursal
+    List<ArticuloInsumo> findBySucursalId(Long sucursalId);
+    Set<ArticuloInsumo> findBySucursal_Id(Long sucursalId);
+
     //region Validaciones para actualizar un insumo
     boolean existsByCodigoAndEliminadoFalseAndIdNot(String codigo, Long id);
     boolean existsByDenominacionAndEliminadoFalseAndIdNot(String denominacion, Long id);
     //endregion
 
-    Set<ArticuloInsumo> findBySucursal_Id(Long sucursalId);
-    boolean existsByCodigoAndSucursal_Id(String codigo, Long sucursalId);
-    boolean existsByDenominacionAndSucursal_Id(String denominacion, Long sucursalId);
-
     List<ArticuloInsumo> findByCategoriaIdAndEliminadoFalse(Long categoriaId);
     @Query("SELECT ai FROM ArticuloInsumo ai WHERE ai.stockActual > 0 AND ai.sucursal.id = :sucursalId")
     List<ArticuloInsumo> findInsumosConStockPorSucursal(Long sucursalId);
+
+    // Métodos para validar código y denominación por sucursal
+    boolean existsByCodigoAndSucursal_Id(String codigo, Long sucursalId);
+    boolean existsByDenominacionAndSucursal_Id(String denominacion, Long sucursalId);
 }

@@ -2,6 +2,8 @@ package com.buensabor.buensabor.service.impl;
 
 
 import com.buensabor.buensabor.dto.articuloManufacturado.ArticuloManufacturadoTablaDto;
+import com.buensabor.buensabor.dto.articuloInsumo.ArticuloInsumoTablaDto;
+import com.buensabor.buensabor.dto.articulo.InsumoSimpleDto;
 import com.buensabor.buensabor.dto.categoria.CategoriaDto;
 import com.buensabor.buensabor.dto.categoria.SubCategoriaDto;
 import com.buensabor.buensabor.dto.promocion.ArticuloPromocionDto;
@@ -392,6 +394,97 @@ public class LocalService {
             return articuloInsumoRepository.save(articuloInsumo);
         } catch (Exception e) {
             throw new Exception("Error al aumentar el stock y actualizar los precios: " + e.getMessage());
+        }
+    }
+
+    public List<ArticuloInsumoTablaDto> traerArticulosInsumoPorSucursalDto(Long sucursalId) throws Exception {
+        try {
+            Set<ArticuloInsumo> insumos = articuloInsumoRepository.findBySucursal_Id(sucursalId);
+            List<ArticuloInsumoTablaDto> dtos = new ArrayList<>();
+            for (ArticuloInsumo insumo : insumos) {
+                ArticuloInsumoTablaDto dto = new ArticuloInsumoTablaDto();
+                dto.setId(insumo.getId());
+                dto.setCodigo(insumo.getCodigo());
+                dto.setDenominacion(insumo.getDenominacion());
+                dto.setDescripcion(insumo.getDescripcion());
+                dto.setEliminado(false); // O ajusta según tu modelo
+                dto.setPrecioVenta(insumo.getPrecioVenta());
+                dto.setStockActual(insumo.getStockActual());
+                dto.setStockMaximo(insumo.getStockMaximo());
+                dto.setStockMinimo(insumo.getStockMinimo());
+                dto.setPrecioCompra(insumo.getPrecioCompra());
+                dto.setEsParaElaborar(insumo.getEsParaElaborar());
+                if (insumo.getImagenes() != null && !insumo.getImagenes().isEmpty()) {
+                    String imagePath = insumo.getImagenes().iterator().next().getUrl();
+                    imagePath = imagePath.replace("src/main/resources/img/", "");
+                    dto.setImagen(imagePath);
+                }
+                // Agrego la unidad de medida (nombre)
+                // unidadMedida: id, unidadMedidaDenominacion: denominacion
+                if (insumo.getUnidadMedida() != null) {
+                    dto.setUnidadMedida(insumo.getUnidadMedida().getId());
+                    dto.setUnidadMedidaDenominacion(insumo.getUnidadMedida().getDenominacion());
+                }
+                // categoria: id, categoriaDenominacion: denominacion
+                if (insumo.getCategoria() != null) {
+                    dto.setCategoria(insumo.getCategoria().getId());
+                    dto.setCategoriaDenominacion(insumo.getCategoria().getDenominacion());
+                }
+                // eliminado: devuelve el valor directo de la base de datos
+                dto.setEliminado(insumo.isEliminado());
+                dtos.add(dto);
+            }
+            return dtos;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    // Método para buscar insumos por sucursal
+    public List<InsumoSimpleDto> buscarInsumosPorSucursal(Long sucursalId) throws Exception {
+        try {
+            List<ArticuloInsumo> insumos = articuloInsumoRepository.findBySucursalId(sucursalId);
+            List<InsumoSimpleDto> dtos = new ArrayList<>();
+            for (ArticuloInsumo insumo : insumos) {
+                InsumoSimpleDto dto = new InsumoSimpleDto();
+                dto.setId(insumo.getId());
+                dto.setCodigo(insumo.getCodigo());
+                dto.setDenominacion(insumo.getDenominacion());
+                dto.setDescripcion(insumo.getDescripcion());
+                dto.setPrecioVenta(insumo.getPrecioVenta());
+                dto.setStockActual(insumo.getStockActual());
+                dto.setStockMaximo(insumo.getStockMaximo());
+                dto.setStockMinimo(insumo.getStockMinimo());
+                dto.setPrecioCompra(insumo.getPrecioCompra());
+                dto.setEsParaElaborar(insumo.getEsParaElaborar());
+
+                // Manejo de imagen
+                if (insumo.getImagenes() != null && !insumo.getImagenes().isEmpty()) {
+                    String imagePath = insumo.getImagenes().iterator().next().getUrl();
+                    imagePath = imagePath.replace("src/main/resources/img/", "");
+                    dto.setImagen(imagePath);
+                }
+
+                // unidadMedida: id, unidadMedidaDenominacion: denominacion
+                if (insumo.getUnidadMedida() != null) {
+                    dto.setUnidadMedida(insumo.getUnidadMedida().getId());
+                    dto.setUnidadMedidaDenominacion(insumo.getUnidadMedida().getDenominacion());
+                }
+
+                // categoria: id, categoriaDenominacion: denominacion
+                if (insumo.getCategoria() != null) {
+                    dto.setCategoria(insumo.getCategoria().getId());
+                    dto.setCategoriaDenominacion(insumo.getCategoria().getDenominacion());
+                }
+
+                // eliminado: devuelve el valor directo de la base de datos como Boolean
+                dto.setEliminado(insumo.isEliminado());
+
+                dtos.add(dto);
+            }
+            return dtos;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
     }
 

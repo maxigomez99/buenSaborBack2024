@@ -12,5 +12,6 @@ public interface IArticuloInsumoService {
     public ArticuloInsumo actualizar(Long id,ArticuloInsumo articuloInsumo) throws Exception;
     public boolean reactivate(Long id) throws Exception;
     public List<ArticuloInsumo> traerTodo() throws Exception;
+    public ArticuloInsumo toggleEstado(Long id) throws Exception;
 }
 
