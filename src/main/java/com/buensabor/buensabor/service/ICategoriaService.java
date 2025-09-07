@@ -4,10 +4,13 @@ import com.buensabor.buensabor.entities.Categoria;
 import com.buensabor.buensabor.dto.categoria.CategoriaDto;
 import com.buensabor.buensabor.dto.categoria.SubCategoriaListaDto;
 
-import java.util.List;
+
+
 import java.util.Set;
 
 public interface ICategoriaService {
+
+
     public Categoria cargar(Categoria categoria) throws Exception;
     public Categoria actualizarCategoriaPadre(Long id, Categoria categoria) throws Exception;
     public Set<Categoria> lista()throws Exception;
@@ -26,5 +29,6 @@ public interface ICategoriaService {
     public Categoria Actualizar(long id, Categoria categoria) throws Exception;
     public Set<CategoriaDto> traerCategoriaPadre(Long sucursalId) throws Exception;
     public boolean tieneSubCategorias(Long categoriaId) throws Exception;
+
 
 }

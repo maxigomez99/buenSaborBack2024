@@ -18,6 +18,6 @@ public class PedidoDetalle extends Base{
 
     @ManyToOne(cascade = CascadeType.MERGE)
     private Pedido pedido;
-//    @ManyToOne(cascade = CascadeType.MERGE)
-//    private Articulo articulo;
+    @ManyToOne(cascade = CascadeType.MERGE)
+    private Articulo articulo;
 }

@@ -1,6 +1,9 @@
 package com.buensabor.buensabor.entities;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -11,15 +14,16 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @ToString
 @SuperBuilder
-public class ArticuloManufacturadoDetalle extends Base {
+//@Audited
+public class ArticuloManufacturadoDetalle extends Base{
 
     private Integer cantidad;
 
     @ManyToOne
-    @JoinColumn(name = "articulo_manufacturado_id")
-    private ArticuloManufacturado articuloManufacturado;
-
-    @ManyToOne
     @JoinColumn(name = "articulo_insumo_id")
     private ArticuloInsumo articuloInsumo;
+    @ManyToOne
+    @JoinColumn(name = "articulo_manufacturado_id")
+    @JsonBackReference
+    private ArticuloManufacturado articuloManufacturado;
 }

@@ -1,17 +1,20 @@
 package com.buensabor.buensabor.service.impl;
 
-import com.buensabor.buensabor.dto.categoria.*;
-import com.buensabor.buensabor.dto.sucursal.SucursalSimpleDto;
-import com.buensabor.buensabor.entities.Articulo;
-import com.buensabor.buensabor.entities.Categoria;
-import com.buensabor.buensabor.entities.Empresa;
-import com.buensabor.buensabor.entities.Sucursal;
-import com.buensabor.buensabor.repository.IArticuloRepository;
-import com.buensabor.buensabor.repository.ICategoriaRepository;
-import com.buensabor.buensabor.repository.IEmpresaRepository;
-import com.buensabor.buensabor.repository.ISucursalRepository;
-import com.buensabor.buensabor.service.ICategoriaService;
-import com.buensabor.buensabor.service.funcionalidades.Funcionalidades;
+
+
+import  com.buensabor.buensabor.dto.categoria.*;
+import  com.buensabor.buensabor.dto.sucursal.SucursalSimpleDto;
+import  com.buensabor.buensabor.entities.Articulo;
+import  com.buensabor.buensabor.entities.Categoria;
+import  com.buensabor.buensabor.entities.Empresa;
+import  com.buensabor.buensabor.entities.Sucursal;
+import  com.buensabor.buensabor.repository.IArticuloRepository;
+import  com.buensabor.buensabor.repository.ICategoriaRepository;
+import  com.buensabor.buensabor.repository.IEmpresaRepository;
+import  com.buensabor.buensabor.repository.ISucursalRepository;
+import  com.buensabor.buensabor.service.ICategoriaService;
+import  com.buensabor.buensabor.service.funcionalidades.Funcionalidades;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -428,42 +431,112 @@ public class CategoriaService implements ICategoriaService {
     @Autowired
     private IEmpresaRepository empresaRepository;
 
-    public Categoria crearCategoriaporEmpresa(CategoriaEmpresaDto categoriaEmpresaDto) throws IOException {
-        Empresa empresa = empresaRepository.findById(categoriaEmpresaDto.getEmpresaId())
-                .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
+//    public Categoria crearCategoriaporEmpresa(CategoriaEmpresaDto categoriaEmpresaDTO) throws IOException {
+//        Empresa empresa = empresaRepository.findById(categoriaEmpresaDTO.getEmpresaId())
+//                .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
+//
+//        // Verificar si ya existe una categoría con el mismo nombre (ignorando mayúsculas y minúsculas) para la empresa
+//        boolean existeCategoria = categoriaRepository.existsByEmpresaAndDenominacionIgnoreCase(empresa, categoriaEmpresaDTO.getDenominacion());
+//        if (existeCategoria) {
+//            throw new IllegalArgumentException("Ya existe una categoría con el mismo nombre para esta empresa.");
+//        }
+//
+//        Categoria categoria = new Categoria();
+//
+//        if (categoriaEmpresaDTO.getUrlIcono() != null) {
+//            String rutaImagen = funcionalidades.guardarImagen(categoriaEmpresaDTO.getUrlIcono(), UUID.randomUUID().toString() + ".jpg");
+//            categoria.setUrlIcono(rutaImagen);
+//        }
+//
+//        categoria.setDenominacion(categoriaEmpresaDTO.getDenominacion());
+//        categoria.setEmpresa(empresa);
+//
+//        return categoriaRepository.save(categoria);
+//    }
+public Categoria crearCategoriaporEmpresa(CategoriaEmpresaDto categoriaEmpresaDTO) throws IOException {
+    Empresa empresa = empresaRepository.findById(categoriaEmpresaDTO.getEmpresaId())
+            .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
 
-        // Verificar si ya existe una categoría con el mismo nombre (ignorando mayúsculas y minúsculas) para la empresa
-        boolean existeCategoria = categoriaRepository.existsByEmpresaAndDenominacionIgnoreCase(empresa, categoriaEmpresaDto.getDenominacion());
-        if (existeCategoria) {
-            throw new IllegalArgumentException("Ya existe una categoría con el mismo nombre para esta empresa.");
-        }
-
-        Categoria categoria = new Categoria();
-
-        if (categoriaEmpresaDto.getUrlIcono() != null && !categoriaEmpresaDto.getUrlIcono().isEmpty()) {
-            // Guardar directamente el base64 en la base de datos
-            categoria.setUrlIcono(categoriaEmpresaDto.getUrlIcono());
-        }
-
-        categoria.setDenominacion(categoriaEmpresaDto.getDenominacion());
-        categoria.setEmpresa(empresa);
-
-        return categoriaRepository.save(categoria);
+    boolean existeCategoria = categoriaRepository.existsByEmpresaAndDenominacionIgnoreCase(empresa, categoriaEmpresaDTO.getDenominacion());
+    if (existeCategoria) {
+        throw new IllegalArgumentException("Ya existe una categoría con el mismo nombre para esta empresa.");
     }
+
+    Categoria categoria = new Categoria();
+
+    if (categoriaEmpresaDTO.getUrlIcono() != null) {
+        String imagen64 = categoriaEmpresaDTO.getUrlIcono();
+        String extension = ".jpg";
+        if (imagen64.startsWith("data:image/png")) {
+            extension = ".png";
+        }
+        if (imagen64.contains(",")) {
+            imagen64 = imagen64.substring(imagen64.indexOf(",") + 1);
+        }
+        String rutaImagen = funcionalidades.guardarImagen(imagen64, UUID.randomUUID().toString() + extension);
+        categoria.setUrlIcono(rutaImagen);
+    }
+
+    categoria.setDenominacion(categoriaEmpresaDTO.getDenominacion());
+    categoria.setEmpresa(empresa);
+
+    return categoriaRepository.save(categoria);
+}
+
+//    public CategoriaDto actualizarDenominacion(Long id, String nuevaDenominacion,String imagen64) throws IOException {
+//        Categoria categoria = categoriaRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+//
+//        // Verificar si existe otra categoría con el mismo nombre y misma empresa, excluyendo la categoría actual
+//        boolean existeOtraCategoriaConMismoNombre = categoriaRepository.existsByDenominacionAndEmpresaIdAndIdNot(nuevaDenominacion, categoria.getEmpresa().getId(), id);
+//        if (existeOtraCategoriaConMismoNombre) {
+//            throw new IllegalArgumentException("Ya existe otra categoría con el mismo nombre en esta empresa.");
+//        }
+//
+//        if (imagen64 != null ) {
+//            // Eliminar la imagen antigua
+//            if(categoria.getUrlIcono() != null){
+//                funcionalidades.eliminarImagen(categoria.getUrlIcono());
+//            }
+//            // Guardar la nueva imagen
+//            String rutaImagen = funcionalidades.guardarImagen(imagen64, UUID.randomUUID().toString() + ".jpg");
+//            categoria.setUrlIcono(rutaImagen);
+//        }
+//
+//        categoria.setDenominacion(nuevaDenominacion);
+//        categoriaRepository.save(categoria);
+//        CategoriaDto dto = new CategoriaDto();
+//        dto.setId(categoria.getId());
+//        dto.setDenominacion(categoria.getDenominacion());
+//        dto.setUrlIcono(categoria.getUrlIcono());
+//        return dto;
+//    }
 
     public CategoriaDto actualizarDenominacion(Long id, String nuevaDenominacion, String imagen64) throws IOException {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
 
-        // Verificar si existe otra categoría con el mismo nombre y misma empresa, excluyendo la categoría actual
-        boolean existeOtraCategoriaConMismoNombre = categoriaRepository.existsByDenominacionAndEmpresaIdAndIdNot(nuevaDenominacion, categoria.getEmpresa().getId(), id);
+        boolean existeOtraCategoriaConMismoNombre = categoriaRepository.existsByDenominacionAndEmpresaIdAndIdNot(
+                nuevaDenominacion, categoria.getEmpresa().getId(), id);
         if (existeOtraCategoriaConMismoNombre) {
             throw new IllegalArgumentException("Ya existe otra categoría con el mismo nombre en esta empresa.");
         }
 
-        if (imagen64 != null && !imagen64.isEmpty()) {
-            // Guardar la imagen directamente en base64
-            categoria.setUrlIcono(imagen64);
+        if (imagen64 != null) {
+            if (categoria.getUrlIcono() != null) {
+                funcionalidades.eliminarImagen(categoria.getUrlIcono());
+            }
+            // Detectar formato de imagen
+            String extension = ".jpg";
+            if (imagen64.startsWith("data:image/png")) {
+                extension = ".png";
+            }
+            // Quitar el prefijo antes de guardar/decodificar
+            if (imagen64.contains(",")) {
+                imagen64 = imagen64.substring(imagen64.indexOf(",") + 1);
+            }
+            String rutaImagen = funcionalidades.guardarImagen(imagen64, UUID.randomUUID().toString() + extension);
+            categoria.setUrlIcono(rutaImagen);
         }
 
         categoria.setDenominacion(nuevaDenominacion);
@@ -500,13 +573,15 @@ public class CategoriaService implements ICategoriaService {
 
         Categoria subCategoria = new Categoria();
 
-        if (subCategoriaDTO.getUrlIcono() != null && !subCategoriaDTO.getUrlIcono().isEmpty()) {
-            // Guardar la imagen directamente en base64
-            subCategoria.setUrlIcono(subCategoriaDTO.getUrlIcono());
+        if (subCategoriaDTO.getUrlIcono() != null) {
+            String rutaImagen = funcionalidades.guardarImagen(subCategoriaDTO.getUrlIcono(), UUID.randomUUID().toString() + ".jpg");
+            subCategoria.setUrlIcono(rutaImagen);
         }
 
         subCategoria.setDenominacion(subCategoriaDTO.getDenominacion());
         subCategoria.setCategoriaPadre(categoriaPadre);
+
+
         subCategoria.setEmpresa(categoriaPadre.getEmpresa());
 
         categoriaPadre.agregarSubCategoria(subCategoria);
@@ -518,12 +593,14 @@ public class CategoriaService implements ICategoriaService {
         dto.setDenominacion(subCategoria.getDenominacion());
         dto.setUrlIcono(subCategoria.getUrlIcono());
 
+
+
         return dto;
     }
     //---------------------
 
 
-    private CategoriaEmpresaDto convertirACategoriaEmpresaDto(Categoria categoria, int depth, Set<Long> procesadas) {
+    private CategoriaEmpresaDto convertirACategoriaEmpresaDTO(Categoria categoria, int depth, Set<Long> procesadas) {
         if (procesadas.contains(categoria.getId())) {
             return null;
         }
@@ -537,7 +614,7 @@ public class CategoriaService implements ICategoriaService {
 
         if (depth > 0) {
             Set<SubCategoriaConEmpresaDto> subCategoriaDtos = categoria.getSubCategorias().stream()
-                    .map(subCategoria -> convertirASubCategoriaConEmpresaDto(subCategoria, depth - 1, procesadas))
+                    .map(subCategoria -> convertirASubCategoriaConEmpresaDTO(subCategoria, depth - 1, procesadas))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
             dto.setSubCategoriaDtos(subCategoriaDtos);
@@ -546,7 +623,7 @@ public class CategoriaService implements ICategoriaService {
         return dto;
     }
 
-    private SubCategoriaConEmpresaDto convertirASubCategoriaConEmpresaDto(Categoria subCategoria, int depth, Set<Long> procesadas) {
+    private SubCategoriaConEmpresaDto convertirASubCategoriaConEmpresaDTO(Categoria subCategoria, int depth, Set<Long> procesadas) {
         if (procesadas.contains(subCategoria.getId())) {
             return null;
         }
@@ -561,7 +638,7 @@ public class CategoriaService implements ICategoriaService {
 
         if (depth > 0) {
             Set<SubCategoriaConEmpresaDto> subSubCategoriaDtos = subCategoria.getSubCategorias().stream()
-                    .map(subSubCategoria -> convertirASubCategoriaConEmpresaDto(subSubCategoria, depth - 1, procesadas))
+                    .map(subSubCategoria -> convertirASubCategoriaConEmpresaDTO(subSubCategoria, depth - 1, procesadas))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
             dto.setSubSubCategoriaDtos(subSubCategoriaDtos);
@@ -638,165 +715,7 @@ public class CategoriaService implements ICategoriaService {
         }
     }
 
-    //---------------------Asociación de Sucursales------------------------------------------------------------
-    public Categoria agregarSucursalACategoria(Long categoriaId, Long sucursalId) throws Exception {
-        Categoria categoria = categoriaRepository.findById(categoriaId).orElse(null);
-        Sucursal sucursal = sucursalRepository.findById(sucursalId).orElse(null);
-
-        if (categoria == null || sucursal == null) {
-            throw new Exception("La categoría o la sucursal no existen");
-        }
-
-        categoria.getSucursales().add(sucursal);
-        agregarSucursalASubcategorias(categoria, sucursal);
-
-        return categoriaRepository.save(categoria);
-    }
-
-    public CategoriaDto desasociarSucursalDeCategoria(Long categoriaId, Long sucursalId) throws Exception {
-        Categoria categoria = categoriaRepository.findById(categoriaId).orElse(null);
-        Sucursal sucursal = sucursalRepository.findById(sucursalId).orElse(null);
-
-        if (categoria == null || sucursal == null) {
-            throw new Exception("La categoría o la sucursal no existen");
-        }
-
-        categoria.getSucursales().remove(sucursal);
-
-        desasociarSucursalDeSubcategorias(categoria, sucursal);
-        categoriaRepository.save(categoria);
-        CategoriaDto categoriaDto = new CategoriaDto();
-        categoriaDto.setDenominacion(categoria.getDenominacion());
-        categoriaDto.setUrlIcono(categoria.getUrlIcono());
-        categoriaDto.setId(categoria.getId());
-        categoriaDto.setEliminado(categoria.isEliminado());
-        return categoriaDto;
-    }
-
-    private void agregarSucursalASubcategorias(Categoria categoria, Sucursal sucursal) {
-        if (categoria.getSubCategorias() != null) {
-            for (Categoria subCategoria : categoria.getSubCategorias()) {
-                subCategoria.getSucursales().add(sucursal);
-                agregarSucursalASubcategorias(subCategoria, sucursal);
-            }
-        }
-    }
-
-    private void desasociarSucursalDeSubcategorias(Categoria categoria, Sucursal sucursal) {
-        if (categoria.getSubCategorias() != null) {
-            for (Categoria subCategoria : categoria.getSubCategorias()) {
-                subCategoria.getSucursales().remove(sucursal);
-                desasociarSucursalDeSubcategorias(subCategoria, sucursal);
-            }
-        }
-    }
-
-    public Set<CategoriaDto> obtenerCategoriasPorSucursal(Long sucursalId) throws Exception {
-        try {
-            // Verificar que la sucursal existe
-            Sucursal sucursal = sucursalRepository.findById(sucursalId)
-                    .orElseThrow(() -> new Exception("No existe una sucursal con el id " + sucursalId));
-
-            // Obtener categorías padres (sin categoría padre) asociadas a la sucursal
-            Set<Categoria> categoriasPadre = categoriaRepository.findBySucursales_IdAndEliminadoFalseAndCategoriaPadreIsNull(sucursalId);
-
-            Set<CategoriaDto> categoriasDto = new HashSet<>();
-
-            for (Categoria categoria : categoriasPadre) {
-                CategoriaDto categoriaDto = new CategoriaDto();
-                categoriaDto.setId(categoria.getId());
-                categoriaDto.setDenominacion(categoria.getDenominacion());
-                categoriaDto.setUrlIcono(categoria.getUrlIcono());
-                categoriaDto.setEliminado(categoria.isEliminado());
-
-                // Agregar subcategorías recursivamente
-                Set<Categoria> subCategorias = categoriaRepository.findByCategoriaPadre_IdAndSucursales_IdAndEliminadoFalse(categoria.getId(), sucursalId);
-                for (Categoria subCategoria : subCategorias) {
-                    SubCategoriaDto subCategoriaDto = obtenerSubCategoriasRecursivamentePorSucursal(subCategoria, sucursalId);
-                    categoriaDto.getSubCategoriaDtos().add(subCategoriaDto);
-                }
-
-                categoriasDto.add(categoriaDto);
-            }
-
-            return categoriasDto;
-        } catch (Exception e) {
-            throw new Exception("Error al obtener las categorías por sucursal: " + e.getMessage());
-        }
-    }
-
-    private SubCategoriaDto obtenerSubCategoriasRecursivamentePorSucursal(Categoria categoria, Long sucursalId) {
-        SubCategoriaDto subCategoriaDto = new SubCategoriaDto();
-        subCategoriaDto.setId(categoria.getId());
-        subCategoriaDto.setDenominacion(categoria.getDenominacion());
-        subCategoriaDto.setUrlIcono(categoria.getUrlIcono());
-        subCategoriaDto.setEliminado(categoria.isEliminado());
-        subCategoriaDto.setIdCategoriaPadre(categoria.getCategoriaPadre() != null ? categoria.getCategoriaPadre().getId() : null);
-
-        // Obtener subcategorías de esta categoría que estén asociadas a la sucursal
-        Set<Categoria> subCategorias = categoriaRepository.findByCategoriaPadre_IdAndSucursales_IdAndEliminadoFalse(categoria.getId(), sucursalId);
-        for (Categoria subCategoria : subCategorias) {
-            SubCategoriaDto subSubCategoriaDto = obtenerSubCategoriasRecursivamentePorSucursal(subCategoria, sucursalId);
-            subCategoriaDto.getSubSubCategoriaDtos().add(subSubCategoriaDto);
-        }
-
-        return subCategoriaDto;
-    }
-
-    public Set<CategoriaDto> traerCategoriasNoAsociadasASucursal(Long sucursalId, Long empresaId) throws Exception {
-        try {
-            Sucursal sucursal = sucursalRepository.findById(sucursalId).orElse(null);
-            Empresa empresa = empresaRepository.findById(empresaId).orElse(null);
-            if (sucursal == null || empresa == null) {
-                throw new Exception("La sucursal o la empresa no existen");
-            }
-
-            Set<Categoria> listaCategoriaOriginal = categoriaRepository.findBySucursalesNotContainsAndEmpresa(sucursal, empresa);
-            Set<CategoriaDto> listaDto = new HashSet<>();
-            for (Categoria lista: listaCategoriaOriginal){
-                if (lista.getCategoriaPadre() == null) {
-                    CategoriaDto categoriadto = new CategoriaDto();
-                    categoriadto.setDenominacion(lista.getDenominacion());
-                    categoriadto.setUrlIcono(lista.getUrlIcono());
-                    categoriadto.setId(lista.getId());
-                    categoriadto.setEliminado(lista.isEliminado());
-
-                    Set<Categoria> subCategorias = categoriaRepository.findByCategoriaPadre_IdAndSucursalesNotContainsAndEmpresa(lista.getId(), sucursal, empresa);
-
-                    for (Categoria subCategoria : subCategorias) {
-                        SubCategoriaDto subCategoriaDto = agregarSubCategoriasNoAsociadasASucursalRecursivamente(subCategoria, sucursalId, empresaId);
-                        categoriadto.getSubCategoriaDtos().add(subCategoriaDto);
-                    }
-                    listaDto.add(categoriadto);
-                }
-            }
-            return listaDto;
-        } catch (Exception e) {
-            throw new Exception(e);
-        }
-    }
-
-    private SubCategoriaDto agregarSubCategoriasNoAsociadasASucursalRecursivamente(Categoria categoria, Long sucursalId, Long empresaId) {
-        SubCategoriaDto subCategoriaDto = new SubCategoriaDto();
-        subCategoriaDto.setDenominacion(categoria.getDenominacion());
-        subCategoriaDto.setUrlIcono(categoria.getUrlIcono());
-        subCategoriaDto.setId(categoria.getId());
-        subCategoriaDto.setIdCategoriaPadre(categoria.getCategoriaPadre() != null ? categoria.getCategoriaPadre().getId() : null);
-        subCategoriaDto.setEliminado(categoria.isEliminado());
-
-        Sucursal sucursal = sucursalRepository.findById(sucursalId).orElse(null);
-        Empresa empresa = empresaRepository.findById(empresaId).orElse(null);
-
-        if (sucursal != null && empresa != null) {
-            Set<Categoria> subCategorias = categoriaRepository.findByCategoriaPadre_IdAndSucursalesNotContainsAndEmpresa(categoria.getId(), sucursal, empresa);
-            for (Categoria subCategoria : subCategorias) {
-                SubCategoriaDto subSubCategoriaDto = agregarSubCategoriasNoAsociadasASucursalRecursivamente(subCategoria, sucursalId, empresaId);
-                subCategoriaDto.getSubSubCategoriaDtos().add(subSubCategoriaDto);
-            }
-        }
-
-        return subCategoriaDto;
-    }
 
 
 }
+

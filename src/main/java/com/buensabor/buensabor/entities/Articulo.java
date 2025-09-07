@@ -1,38 +1,44 @@
 package com.buensabor.buensabor.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Setter
 @Getter
 @ToString
 @SuperBuilder
-public abstract class Articulo extends Base {
+//@Audited
+
+
+public abstract class Articulo extends Base{
+
 
     protected String denominacion;
+    protected String descripcion;
+    protected String codigo;
     protected Double precioVenta;
+    @JsonManagedReference
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "articulo")
+    @Builder.Default
+    protected Set<ImagenArticulo> imagenes = new HashSet<>();
+    @ManyToOne
+    protected UnidadMedida unidadMedida;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
+    @ToString.Exclude
     protected Categoria categoria;
 
     @ManyToOne
-    @JoinColumn(name = "unidad_medida_id")
-    protected UnidadMedida unidadMedida;
-
-    @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL)
-    protected List<ImagenArticulo> imagenes;
-
-    // Constructor con id para facilitar la creación de entidades con un id específico
-    public Articulo(Long id) {
-        super();
-        this.setId(id);
-    }
+    private Sucursal sucursal;
 }

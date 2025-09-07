@@ -1,52 +1,56 @@
 package com.buensabor.buensabor.entities;
 
-    import jakarta.persistence.*;
-    import lombok.*;
-    import lombok.experimental.SuperBuilder;
+import com.buensabor.buensabor.enums.TipoPromocion;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 
-    import java.time.LocalDate;
-    import java.time.LocalTime;
-    import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
-    @Entity
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Setter
-    @Getter
-    @ToString
-    @SuperBuilder
-    public class Promocion extends Base {
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+@ToString
+@Builder
 
-        private String denominacion;
+//@Audited
+public class Promocion extends Base{
 
-        @Column(name = "fecha_desde")
-        private LocalDate fechaDesde;
+    private String denominacion;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate fechaDesde;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate fechaHasta;
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime horaDesde;
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime horaHasta;
+    private String descripcionDescuento;
+    private Double precioPromocional;
+    private TipoPromocion tipoPromocion;
 
-        @Column(name = "fecha_hasta")
-        private LocalDate fechaHasta;
 
-        @Column(name = "hora_desde")
-        private LocalTime horaDesde;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JsonManagedReference
+    @Builder.Default
+    private Set<PromocionDetalle> promocionDetalles = new HashSet<>();
 
-        @Column(name = "hora_hasta")
-        private LocalTime horaHasta;
+//    @OneToMany(cascade = CascadeType.ALL)
+//    private Set<ImagenPromocion> imagenes = new HashSet<>();
 
-        private String descDescuento;
+    private String imagen;
 
-        @Column(name = "precio_promo")
-        private Double precioPromo;
 
-        @ManyToOne
-        @JoinColumn(name = "tipo_promocion_id")
-        private TipoPromocion tipoPromocion;
+    @ManyToMany
+    @Builder.Default
+    private Set<Sucursal> sucursales = new HashSet<>();
 
-        @ManyToOne
-        @JoinColumn(name = "empresa_id")
-        private Empresa empresa;
-
-        @OneToMany(mappedBy = "promocion")
-        private List<PromocionDetalle> promocionDetalles;
-
-        @OneToMany(mappedBy = "promocion")
-        private List<ImagenPromocion> imagenes;
-    }
+}

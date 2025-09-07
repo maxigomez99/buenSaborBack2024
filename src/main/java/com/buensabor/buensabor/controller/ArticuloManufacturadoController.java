@@ -1,28 +1,130 @@
 package com.buensabor.buensabor.controller;
 
 import com.buensabor.buensabor.entities.ArticuloManufacturado;
+import com.buensabor.buensabor.errores.ApiError;
 import com.buensabor.buensabor.service.IArticuloManufacturadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/api/articulos-manufacturados")
-public class ArticuloManufacturadoController extends ArticuloController<ArticuloManufacturado, IArticuloManufacturadoService> {
-
+public class ArticuloManufacturadoController {
     @Autowired
-    public ArticuloManufacturadoController(IArticuloManufacturadoService service) {
-        super(service);
-    }
+    private IArticuloManufacturadoService articuloManufacturadoService;
 
-    @GetMapping("/tiempo-menor/{minutos}")
-    public ResponseEntity<?> getByTiempoEstimadoMinutosLessThan(@PathVariable Integer minutos) {
+
+    //region CRUD Basico
+
+    @GetMapping("/")
+    public ResponseEntity<?> Lista() {
         try {
-            return ResponseEntity.ok(service.findByTiempoEstimadoMinutosLessThan(minutos));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(200).body(articuloManufacturadoService.listaArticuloManufacturado());
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.status(200).body(articuloManufacturadoService.buscarPorId(id));
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/")
+    //@PreAuthorize("hasAuthority('EMPLEADO_COCINA') or hasAuthority('ADMINISTRADOR')")
+    public ResponseEntity<?> cargarArticuloManufacturado(@RequestBody ArticuloManufacturado articuloManufacturado) {
+        try {
+            return ResponseEntity.ok().body(articuloManufacturadoService.cargarArticuloManufacturado(articuloManufacturado));
+        }catch (Exception e) {
+            ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<>(apiError, apiError.getStatus());
+        }
+    }
+    @PutMapping("/{id}")
+    //@PreAuthorize("hasAuthority('EMPLEADO_COCINA') or hasAuthority('ADMINISTRADOR')")
+    public ResponseEntity<?> actualizarArticuloManufacturado(@PathVariable Long id, @RequestBody ArticuloManufacturado articuloManufacturado) {
+        try {
+            return ResponseEntity.status(200).body(articuloManufacturadoService.actualizarArticuloManufacturado(id, articuloManufacturado));
+        }catch (Exception e) {
+            ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<>(apiError, apiError.getStatus());
+        }
+    }
+    @DeleteMapping("/{id}")
+    //@PreAuthorize("hasAuthority('EMPLEADO_COCINA') or hasAuthority('ADMINISTRADOR')")
+    public ResponseEntity<?> eliminarArticuloManufacturado(@PathVariable Long id) {
+        try {
+            return ResponseEntity.status(200).body(articuloManufacturadoService.eliminarArticuloManufacturado(id));
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    //endregion
+
+    //region Dtos
+
+    @GetMapping("/tabla/")
+    public ResponseEntity<?> tabla() {
+        try {
+            return ResponseEntity.ok().body(articuloManufacturadoService.tablaArticuloManufacturado());
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    //endregion
+
+    @PostMapping("/reactivate/{id}")
+    //@PreAuthorize("hasAuthority('EMPLEADO_COCINA') or hasAuthority('ADMINISTRADOR')")
+    public ResponseEntity<?> reactivate(@PathVariable Long id) {
+        try {
+            articuloManufacturadoService.reactivate(id);
+            return ResponseEntity.ok().body("Articulo reactivado");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/traer-todos/")
+    public ResponseEntity<?> traerTodos() {
+        try {
+            return ResponseEntity.ok().body(articuloManufacturadoService.traerTodos());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @GetMapping("/imagenBase64/{id}")
+    public ResponseEntity<?> traerManufacturadoBase64(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok().body(articuloManufacturadoService.traerArticuloBase64(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/toggle-estado")
+//@PreAuthorize("hasAuthority('EMPLEADO_COCINA') or hasAuthority('ADMINISTRADOR')")
+    public ResponseEntity<?> toggleEstado(@PathVariable Long id) {
+        try {
+            ArticuloManufacturado articuloActualizado = articuloManufacturadoService.toggleEstado(id);
+            String mensaje = articuloActualizado.isEliminado() ?
+                    "Artículo manufacturado desactivado exitosamente" :
+                    "Artículo manufacturado activado exitosamente";
+
+            return ResponseEntity.ok().body(Map.of(
+                    "mensaje", mensaje,
+                    "articuloManufacturado", articuloActualizado
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
 }

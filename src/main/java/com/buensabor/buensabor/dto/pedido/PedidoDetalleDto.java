@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @Getter
 public class PedidoDetalleDto extends BaseDto {
-//    private ArticuloManufacturadoDto articulo;
+     private ArticuloManufacturadoDto articulo;
     private Integer cantidad;
 
 }

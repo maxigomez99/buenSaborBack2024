@@ -8,9 +8,8 @@ import java.util.List;
 
 @Repository
 public interface IPromocionDetalleRepository extends JpaRepository<PromocionDetalle, Long> {
-    // Método para buscar detalles por promoción
+    List<PromocionDetalle> findByPromocion_Id(Long promocionId);
+
     List<PromocionDetalle> findByPromocionId(Long promocionId);
 
-    // Método para buscar detalles por artículo manufacturado
-    List<PromocionDetalle> findByArticuloManufacturadoId(Long articuloManufacturadoId);
 }
