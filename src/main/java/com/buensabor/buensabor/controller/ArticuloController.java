@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -113,7 +114,7 @@ public class ArticuloController {
         dto.setCodigo(insumo.getCodigo());
         dto.setCantidadNecesaria(detalle.getCantidad());
         dto.setStockMaximo(insumo.getStockMaximo());
-        dto.setUnidadMedidaNombre(insumo.getUnidadMedida() != null ? insumo.getUnidadMedida().getDenominacion() : null);
+        dto.setPrecioCompra(insumo.getPrecioCompra() != null ? BigDecimal.valueOf(insumo.getPrecioCompra()) : null);
         dto.setCategoriaNombre(insumo.getCategoria() != null ? insumo.getCategoria().getDenominacion() : null);
         return dto;
     }
