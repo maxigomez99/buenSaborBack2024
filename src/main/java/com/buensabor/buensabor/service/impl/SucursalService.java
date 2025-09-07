@@ -1,0 +1,227 @@
+package com.buensabor.buensabor.service.impl;
+
+import com.buensabor.buensabor.entities.*;
+import com.buensabor.buensabor.repository.*;
+import com.buensabor.buensabor.service.ISucursalService;
+import com.buensabor.buensabor.service.funcionalidades.Funcionalidades;
+import com.buensabor.buensabor.dto.sucursal.SucursalDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class SucursalService implements ISucursalService {
+
+    @Autowired
+    private ISucursalRepository sucursalRepository;
+    @Autowired
+    private IEmpresaRepository empresaRepository;
+    @Autowired
+    private IDomicilioRepository domicilioRepository;
+    @Autowired
+    private ILocalidadRepository localidadRepository;
+    @Autowired
+    private IProvinciaRepository provinciaRepository;
+    @Autowired
+    private IPaisRepository paisRepository;
+    @Autowired
+    private Funcionalidades funcionalidades;
+    @Override
+  public Sucursal save(Sucursal sucursal) throws Exception {
+    try {
+        // Check if a Sucursal with the same name already exists
+        if (sucursalRepository.existsByNombre(sucursal.getNombre())) {
+            throw new Exception("Ya existe una sucursal con el nombre proporcionado");
+        }
+
+        // Validate and set the Base64 image directly
+        if (sucursal.getImagen() != null && !sucursal.getImagen().isEmpty()) {
+            sucursal.setImagen(sucursal.getImagen());
+        }
+
+        // Save the Sucursal entity to the database
+        return sucursalRepository.save(sucursal);
+    } catch (Exception e) {
+        throw new Exception("Error al guardar la sucursal: " + e.getMessage());
+    }
+}
+    @Override
+    public boolean delete(Long id) throws Exception {
+        try {
+            Sucursal sucursal = sucursalRepository.findById(id).orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
+            if(sucursalRepository.existsByIdAndEliminadoFalse(id)){
+                sucursal.setEliminado(true);
+            }else{
+                sucursal.setEliminado(false);
+            }
+
+            sucursalRepository.save(sucursal);
+            return true;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public Sucursal updateDto(Long id, SucursalDto sucursalDto) throws Exception {
+        try {
+
+            Sucursal sucursalExistente = sucursalRepository.findById(id).orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
+            Localidad localidadActualizada = localidadRepository.findById(sucursalDto.getIdLocalidad())
+                    .orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
+//            Provincia provincia = provinciaRepository.findById(Long.valueOf(sucursalDto.getProvincia())).orElseThrow(() -> new Exception("No se encontró la provincia con el id proporcionado"));
+//            Pais pais = paisRepository.findById(Long.valueOf(sucursalDto.getPais())).orElseThrow(() -> new Exception("No se encontró el país con el id proporcionado"));
+
+            // Verificar si existe otra sucursal con el mismo nombre pero diferente ID
+            if(sucursalRepository.existsByNombreAndNotId(sucursalDto.getNombre(), id)){
+                throw new Exception("Ya existe una sucursal con el nombre proporcionado");
+            }
+
+            // Actualizar los campos de la sucursal existente con los valores del SucursalDto
+            sucursalExistente.setNombre(sucursalDto.getNombre());
+            // Aquí deberías actualizar otros campos relevantes de SucursalDto, excepto aquellos que implican relaciones con otras entidades
+            sucursalExistente.setHorarioApertura(sucursalDto.getHorarioApertura());
+            sucursalExistente.setHorarioCierre(sucursalDto.getHorarioCierre());
+
+
+//            sucursalExistente.getDomicilio().getLocalidad().getProvincia().setPais(pais);
+//            sucursalExistente.getDomicilio().getLocalidad().setProvincia(provincia);
+            sucursalExistente.getDomicilio().setLocalidad(localidadActualizada);
+            sucursalExistente.getDomicilio().setNumero(Integer.valueOf(sucursalDto.getNumero()));
+            sucursalExistente.getDomicilio().setCalle(sucursalDto.getCalle());
+            sucursalExistente.getDomicilio().setCp(Integer.valueOf(sucursalDto.getCp()));
+
+            // Manejo de la imagen en base64
+            if (sucursalDto.getImagen() == null || sucursalDto.getImagen().isEmpty()) {
+                // Si no se envía imagen o es vacía, guardamos cadena vacía
+                sucursalExistente.setImagen("");
+            } else {
+                // Si se envía imagen, la guardamos directamente como base64
+                sucursalExistente.setImagen(sucursalDto.getImagen());
+            }
+
+
+            // Guardar la sucursal actualizada en el repositorio
+            return sucursalRepository.save(sucursalExistente);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Sucursal> traerTodo() throws Exception {
+        try {
+            return sucursalRepository.findAll();
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public Sucursal traerPorId(Long id) throws Exception {
+        try {
+            return sucursalRepository.findById(id).orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public Sucursal reactivate(Long id) throws Exception {
+        try {
+            Sucursal sucursal = sucursalRepository.findById(id).orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
+            sucursal.setEliminado(false);
+            return sucursalRepository.save(sucursal);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Sucursal> traerTodoPorEmpresaId(Long empresaId) throws Exception {
+        try {
+            return sucursalRepository.findByEmpresaId(empresaId);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+    @Override
+    public List<Sucursal> traerPorEmpresaId(Long empresaId) throws Exception {
+        try {
+            // Utiliza el nuevo método que filtra por empresaId y que no estén eliminadas
+            return sucursalRepository.findByEmpresaIdAndEliminadoFalse(empresaId);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public Sucursal guardarSucursalDto(SucursalDto sucursalDto) throws Exception {
+        try {
+            // Buscar la Empresa
+            Empresa empresa = empresaRepository.findById(sucursalDto.getIdEmpresa())
+                    .orElseThrow(() -> new Exception("No se encontró la empresa con el id proporcionado"));
+
+            // Buscar la Localidad existente
+            Localidad localidad = localidadRepository.findById(sucursalDto.getIdLocalidad())
+                    .orElseThrow(() -> new Exception("No se encontró la localidad con el id proporcionado"));
+
+            // Crear el domicilio y asociar localidad
+            Domicilio domicilio = new Domicilio();
+            domicilio.setLocalidad(localidad);
+            domicilio.setCalle(sucursalDto.getCalle());
+            domicilio.setNumero(Integer.valueOf(sucursalDto.getNumero()));
+            domicilio.setCp(Integer.valueOf(sucursalDto.getCp()));
+            domicilio.setPiso(sucursalDto.getPiso() != null ? sucursalDto.getPiso() : "");
+            domicilio.setNumeroDepto(sucursalDto.getNumeroDepto() != null ? sucursalDto.getNumeroDepto() : "");
+
+            // Crear la sucursal y asociar empresa y domicilio
+            Sucursal sucursal = new Sucursal();
+            sucursal.setEmpresa(empresa);
+            sucursal.setNombre(sucursalDto.getNombre());
+            sucursal.setHorarioApertura(sucursalDto.getHorarioApertura());
+            sucursal.setHorarioCierre(sucursalDto.getHorarioCierre());
+            sucursal.setDomicilio(domicilio);
+
+            // Guardar domicilio después de estar relacionado
+            domicilioRepository.save(domicilio);
+
+            // Guardar imagen si viene
+            if (sucursalDto.getImagen() != null && !sucursalDto.getImagen().isEmpty()) {
+                sucursal.setImagen(sucursalDto.getImagen());
+            }
+
+            // Guardar sucursal
+            return sucursalRepository.save(sucursal);
+        } catch (Exception e) {
+            throw new Exception("Error al guardar la sucursal: " + e.getMessage());
+        }
+    }
+
+    public List<Sucursal> obtenerSucursalesActivas() throws Exception {
+        try {
+            return sucursalRepository.findByEliminadoFalse();
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public Sucursal toggleEstado(Long id) throws Exception {
+        try {
+            Sucursal sucursal = sucursalRepository.findById(id)
+                .orElseThrow(() -> new Exception("No se encontró la sucursal con el id proporcionado"));
+
+            // Cambiar el estado eliminado (true -> false, false -> true)
+            sucursal.setEliminado(!sucursal.isEliminado());
+
+            // Guardar la sucursal con el estado actualizado
+            return sucursalRepository.save(sucursal);
+        } catch (Exception e) {
+            throw new Exception("Error al cambiar el estado de la sucursal: " + e.getMessage());
+        }
+    }
+}
+

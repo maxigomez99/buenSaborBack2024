@@ -1,0 +1,40 @@
+package com.buensabor.buensabor.dto.promocion;
+
+
+import com.buensabor.buensabor.dto.BaseDto;
+import com.buensabor.buensabor.entities.ImagenArticulo;
+import com.buensabor.buensabor.entities.UnidadMedida;
+import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+public class ArticuloPromocionDto extends BaseDto {
+    private String denominacion;
+    private String descripcion;
+    private Double precioVenta;
+    private Integer tiempoEstimadoMinutos;
+    private String preparacion;
+    protected Set<ImagenArticulo> imagenes = new HashSet<>();
+    protected String codigo;
+    protected UnidadMedida unidadMedida;
+    private Long cantidadMaximaCompra;
+
+    public void setImagenesConRutaModificada(Set<ImagenArticulo> imagenesOriginales) {
+        this.imagenes = imagenesOriginales.stream()
+                .map(imagen -> {
+                    String urlModificada = imagen.getUrl().replace("src\\main\\resources\\img\\", "");
+                    ImagenArticulo imagenModificada = new ImagenArticulo();
+                    imagenModificada.setUrl(urlModificada);
+                    imagenModificada.setArticulo(imagen.getArticulo());
+                    imagenModificada.setId(imagen.getId());
+                    return imagenModificada;
+                })
+                .collect(Collectors.toSet());
+    }
+}

@@ -8,6 +8,7 @@ public class BuensaborbackApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BuensaborbackApplication.class, args);
+		System.out.println("Arranco el programa Buen Sabor");
 	}
 
 }
