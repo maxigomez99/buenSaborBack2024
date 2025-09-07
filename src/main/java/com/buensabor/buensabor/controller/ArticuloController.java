@@ -49,23 +49,10 @@ public class ArticuloController {
                     .toList();
             logger.info("Después del filtro: {} artículos manufacturados no eliminados", manufacturadosDto.size());
 
-            // Obtener insumos de la sucursal
-            Set<ArticuloInsumo> insumosSet = articuloInsumoRepository.findBySucursal_Id(sucursalId);
-            logger.info("Encontrados {} insumos en sucursal {}", insumosSet.size(), sucursalId);
-
-            // Convertir a DTO y filtrar
-            List<ArticuloInsumoSimpleDto> insumosDto = insumosSet.stream()
-                    .filter(insumo -> insumo != null &&
-                            !insumo.isEliminado() &&
-                            (insumo.getEsParaElaborar() == null || !insumo.getEsParaElaborar()))
-                    .map(this::convertirAInsumoDto)
-                    .toList();
-            logger.info("Después del filtro: {} insumos no eliminados y no para elaborar", insumosDto.size());
-
-            // Crear respuesta con DTOs simples
+            // Crear respuesta solo con manufacturados
             ArticulosParaVentaDto response = new ArticulosParaVentaDto();
             response.setArticulosManufacturados(manufacturadosDto);
-            response.setArticulosInsumos(insumosDto);
+            response.setArticulosInsumos(List.of()); // O puedes omitir este seteo si el DTO lo permite
 
             logger.info("Respuesta creada exitosamente para sucursal {}", sucursalId);
             return ResponseEntity.ok(response);
