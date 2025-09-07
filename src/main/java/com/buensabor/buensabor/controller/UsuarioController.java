@@ -82,7 +82,7 @@ public class UsuarioController {
             // Generar JWT
             String token = jwtUtil.generateToken(
                 userResponse.getUsername(),
-                userResponse.getRol(),
+                userResponse.getRol().name(),
                 userResponse.getNombre(),
                 userResponse.getApellido()
             );

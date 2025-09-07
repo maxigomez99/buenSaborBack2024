@@ -2,12 +2,11 @@ package com.buensabor.buensabor.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+// @Component removido para evitar conflicto con util.JwtUtil
 public class JwtUtil {
     private final String SECRET_KEY = "MiSuperClaveJWT2025!$#@123";
     private final long EXPIRATION_TIME = 86400000; // 1 día en ms
@@ -26,4 +25,3 @@ public class JwtUtil {
                 .compact();
     }
 }
-

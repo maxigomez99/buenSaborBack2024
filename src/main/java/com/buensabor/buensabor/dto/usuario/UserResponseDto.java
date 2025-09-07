@@ -16,4 +16,6 @@ public class UserResponseDto  {
     private long idEmpresa;
     private long idCliente;
     private Long idEmpleado;
+    private String nombre;
+    private String apellido;
 }
