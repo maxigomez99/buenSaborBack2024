@@ -431,46 +431,111 @@ public class CategoriaService implements ICategoriaService {
     @Autowired
     private IEmpresaRepository empresaRepository;
 
-    public Categoria crearCategoriaporEmpresa(CategoriaEmpresaDto categoriaEmpresaDTO) throws IOException {
-        Empresa empresa = empresaRepository.findById(categoriaEmpresaDTO.getEmpresaId())
-                .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
+//    public Categoria crearCategoriaporEmpresa(CategoriaEmpresaDto categoriaEmpresaDTO) throws IOException {
+//        Empresa empresa = empresaRepository.findById(categoriaEmpresaDTO.getEmpresaId())
+//                .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
+//
+//        // Verificar si ya existe una categoría con el mismo nombre (ignorando mayúsculas y minúsculas) para la empresa
+//        boolean existeCategoria = categoriaRepository.existsByEmpresaAndDenominacionIgnoreCase(empresa, categoriaEmpresaDTO.getDenominacion());
+//        if (existeCategoria) {
+//            throw new IllegalArgumentException("Ya existe una categoría con el mismo nombre para esta empresa.");
+//        }
+//
+//        Categoria categoria = new Categoria();
+//
+//        if (categoriaEmpresaDTO.getUrlIcono() != null) {
+//            String rutaImagen = funcionalidades.guardarImagen(categoriaEmpresaDTO.getUrlIcono(), UUID.randomUUID().toString() + ".jpg");
+//            categoria.setUrlIcono(rutaImagen);
+//        }
+//
+//        categoria.setDenominacion(categoriaEmpresaDTO.getDenominacion());
+//        categoria.setEmpresa(empresa);
+//
+//        return categoriaRepository.save(categoria);
+//    }
+public Categoria crearCategoriaporEmpresa(CategoriaEmpresaDto categoriaEmpresaDTO) throws IOException {
+    Empresa empresa = empresaRepository.findById(categoriaEmpresaDTO.getEmpresaId())
+            .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
 
-        // Verificar si ya existe una categoría con el mismo nombre (ignorando mayúsculas y minúsculas) para la empresa
-        boolean existeCategoria = categoriaRepository.existsByEmpresaAndDenominacionIgnoreCase(empresa, categoriaEmpresaDTO.getDenominacion());
-        if (existeCategoria) {
-            throw new IllegalArgumentException("Ya existe una categoría con el mismo nombre para esta empresa.");
-        }
-
-        Categoria categoria = new Categoria();
-
-        if (categoriaEmpresaDTO.getUrlIcono() != null) {
-            String rutaImagen = funcionalidades.guardarImagen(categoriaEmpresaDTO.getUrlIcono(), UUID.randomUUID().toString() + ".jpg");
-            categoria.setUrlIcono(rutaImagen);
-        }
-
-        categoria.setDenominacion(categoriaEmpresaDTO.getDenominacion());
-        categoria.setEmpresa(empresa);
-
-        return categoriaRepository.save(categoria);
+    boolean existeCategoria = categoriaRepository.existsByEmpresaAndDenominacionIgnoreCase(empresa, categoriaEmpresaDTO.getDenominacion());
+    if (existeCategoria) {
+        throw new IllegalArgumentException("Ya existe una categoría con el mismo nombre para esta empresa.");
     }
 
-    public CategoriaDto actualizarDenominacion(Long id, String nuevaDenominacion,String imagen64) throws IOException {
+    Categoria categoria = new Categoria();
+
+    if (categoriaEmpresaDTO.getUrlIcono() != null) {
+        String imagen64 = categoriaEmpresaDTO.getUrlIcono();
+        String extension = ".jpg";
+        if (imagen64.startsWith("data:image/png")) {
+            extension = ".png";
+        }
+        if (imagen64.contains(",")) {
+            imagen64 = imagen64.substring(imagen64.indexOf(",") + 1);
+        }
+        String rutaImagen = funcionalidades.guardarImagen(imagen64, UUID.randomUUID().toString() + extension);
+        categoria.setUrlIcono(rutaImagen);
+    }
+
+    categoria.setDenominacion(categoriaEmpresaDTO.getDenominacion());
+    categoria.setEmpresa(empresa);
+
+    return categoriaRepository.save(categoria);
+}
+
+//    public CategoriaDto actualizarDenominacion(Long id, String nuevaDenominacion,String imagen64) throws IOException {
+//        Categoria categoria = categoriaRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+//
+//        // Verificar si existe otra categoría con el mismo nombre y misma empresa, excluyendo la categoría actual
+//        boolean existeOtraCategoriaConMismoNombre = categoriaRepository.existsByDenominacionAndEmpresaIdAndIdNot(nuevaDenominacion, categoria.getEmpresa().getId(), id);
+//        if (existeOtraCategoriaConMismoNombre) {
+//            throw new IllegalArgumentException("Ya existe otra categoría con el mismo nombre en esta empresa.");
+//        }
+//
+//        if (imagen64 != null ) {
+//            // Eliminar la imagen antigua
+//            if(categoria.getUrlIcono() != null){
+//                funcionalidades.eliminarImagen(categoria.getUrlIcono());
+//            }
+//            // Guardar la nueva imagen
+//            String rutaImagen = funcionalidades.guardarImagen(imagen64, UUID.randomUUID().toString() + ".jpg");
+//            categoria.setUrlIcono(rutaImagen);
+//        }
+//
+//        categoria.setDenominacion(nuevaDenominacion);
+//        categoriaRepository.save(categoria);
+//        CategoriaDto dto = new CategoriaDto();
+//        dto.setId(categoria.getId());
+//        dto.setDenominacion(categoria.getDenominacion());
+//        dto.setUrlIcono(categoria.getUrlIcono());
+//        return dto;
+//    }
+
+    public CategoriaDto actualizarDenominacion(Long id, String nuevaDenominacion, String imagen64) throws IOException {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
 
-        // Verificar si existe otra categoría con el mismo nombre y misma empresa, excluyendo la categoría actual
-        boolean existeOtraCategoriaConMismoNombre = categoriaRepository.existsByDenominacionAndEmpresaIdAndIdNot(nuevaDenominacion, categoria.getEmpresa().getId(), id);
+        boolean existeOtraCategoriaConMismoNombre = categoriaRepository.existsByDenominacionAndEmpresaIdAndIdNot(
+                nuevaDenominacion, categoria.getEmpresa().getId(), id);
         if (existeOtraCategoriaConMismoNombre) {
             throw new IllegalArgumentException("Ya existe otra categoría con el mismo nombre en esta empresa.");
         }
 
-        if (imagen64 != null ) {
-            // Eliminar la imagen antigua
-            if(categoria.getUrlIcono() != null){
+        if (imagen64 != null) {
+            if (categoria.getUrlIcono() != null) {
                 funcionalidades.eliminarImagen(categoria.getUrlIcono());
             }
-            // Guardar la nueva imagen
-            String rutaImagen = funcionalidades.guardarImagen(imagen64, UUID.randomUUID().toString() + ".jpg");
+            // Detectar formato de imagen
+            String extension = ".jpg";
+            if (imagen64.startsWith("data:image/png")) {
+                extension = ".png";
+            }
+            // Quitar el prefijo antes de guardar/decodificar
+            if (imagen64.contains(",")) {
+                imagen64 = imagen64.substring(imagen64.indexOf(",") + 1);
+            }
+            String rutaImagen = funcionalidades.guardarImagen(imagen64, UUID.randomUUID().toString() + extension);
             categoria.setUrlIcono(rutaImagen);
         }
 
