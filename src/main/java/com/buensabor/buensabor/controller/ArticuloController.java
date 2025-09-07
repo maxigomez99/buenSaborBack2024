@@ -3,8 +3,10 @@ package com.buensabor.buensabor.controller;
 import com.buensabor.buensabor.dto.ArticulosParaVentaDto;
 import com.buensabor.buensabor.dto.ArticuloManufacturadoSimpleDto;
 import com.buensabor.buensabor.dto.ArticuloInsumoSimpleDto;
+import com.buensabor.buensabor.dto.InsumoDetalleDto;
 import com.buensabor.buensabor.entities.ArticuloInsumo;
 import com.buensabor.buensabor.entities.ArticuloManufacturado;
+import com.buensabor.buensabor.entities.ArticuloManufacturadoDetalle;
 import com.buensabor.buensabor.repository.IArticuloInsumoRepository;
 import com.buensabor.buensabor.repository.IArticuloManufacturadoRepository;
 import org.slf4j.Logger;
@@ -74,6 +76,14 @@ public class ArticuloController {
         dto.setPreparacion(articulo.getPreparacion());
         dto.setCategoriaNombre(articulo.getCategoria() != null ? articulo.getCategoria().getDenominacion() : null);
         dto.setUnidadMedidaNombre(articulo.getUnidadMedida() != null ? articulo.getUnidadMedida().getDenominacion() : null);
+
+        // Convertir detalles de insumos
+        List<InsumoDetalleDto> insumosDto = articulo.getArticuloManufacturadoDetalles().stream()
+                .filter(detalle -> detalle != null && detalle.getArticuloInsumo() != null && !detalle.getArticuloInsumo().isEliminado())
+                .map(this::convertirAInsumoDetalleDto)
+                .toList();
+        dto.setInsumos(insumosDto);
+
         return dto;
     }
 
@@ -91,6 +101,20 @@ public class ArticuloController {
         dto.setEsParaElaborar(insumo.getEsParaElaborar());
         dto.setCategoriaNombre(insumo.getCategoria() != null ? insumo.getCategoria().getDenominacion() : null);
         dto.setUnidadMedidaNombre(insumo.getUnidadMedida() != null ? insumo.getUnidadMedida().getDenominacion() : null);
+        return dto;
+    }
+
+    private InsumoDetalleDto convertirAInsumoDetalleDto(ArticuloManufacturadoDetalle detalle) {
+        ArticuloInsumo insumo = detalle.getArticuloInsumo();
+        InsumoDetalleDto dto = new InsumoDetalleDto();
+        dto.setInsumoId(insumo.getId());
+        dto.setDenominacion(insumo.getDenominacion());
+        dto.setDescripcion(insumo.getDescripcion());
+        dto.setCodigo(insumo.getCodigo());
+        dto.setCantidadNecesaria(detalle.getCantidad());
+        dto.setStockMaximo(insumo.getStockMaximo());
+        dto.setUnidadMedidaNombre(insumo.getUnidadMedida() != null ? insumo.getUnidadMedida().getDenominacion() : null);
+        dto.setCategoriaNombre(insumo.getCategoria() != null ? insumo.getCategoria().getDenominacion() : null);
         return dto;
     }
 }

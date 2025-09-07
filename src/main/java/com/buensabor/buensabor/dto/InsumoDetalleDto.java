@@ -4,20 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArticuloManufacturadoSimpleDto {
-    private Long id;
+public class InsumoDetalleDto {
+    private Long insumoId;
     private String denominacion;
     private String descripcion;
     private String codigo;
-    private Double precioVenta;
-    private Integer tiempoEstimadoMinutos;
-    private String preparacion;
-    private String categoriaNombre;
+    private Integer cantidadNecesaria;
+    private Integer stockMaximo;
     private String unidadMedidaNombre;
-    private List<InsumoDetalleDto> insumos;
+    private String categoriaNombre;
 }
