@@ -49,10 +49,10 @@ public class CompraProductoService {
             CompraProductoDto dto = convertToDto(articulo);
             articulos.add(dto);
         }
-        for (ArticuloInsumo articulo : articulosInsumosPadre) {
-            CompraProductoDto dto = convertToDto(articulo);
-            articulos.add(dto);
-        }
+//        for (ArticuloInsumo articulo : articulosInsumosPadre) {
+//            CompraProductoDto dto = convertToDto(articulo);
+//            articulos.add(dto);
+//        }
 
 
         Set<Categoria> subcategorias = categoriaRepository.findByCategoriaPadre_IdAndEliminadoFalse(categoriaId);
@@ -75,10 +75,10 @@ public class CompraProductoService {
                 }
             }
 
-            for (ArticuloInsumo articulo : articulosInsumos) {
-                CompraProductoDto dto = convertToDto(articulo);
-                articulos.add(dto);
-            }
+//            for (ArticuloInsumo articulo : articulosInsumos) {
+//                CompraProductoDto dto = convertToDto(articulo);
+//                articulos.add(dto);
+//            }
         }
 
         return articulos;
@@ -106,7 +106,7 @@ public class CompraProductoService {
         List<ImagenArticulo> processedImages = new ArrayList<>();
         for (ImagenArticulo imagen : articulo.getImagenes()) {
             String imagePath = imagen.getUrl();
-            imagePath = imagePath.replace("src\\main\\resources\\img\\", "");
+            imagePath = imagePath.replace("src\\main\\resources\\images\\", "");
             imagen.setUrl(imagePath);
             processedImages.add(imagen);
         }
@@ -118,7 +118,6 @@ public class CompraProductoService {
         }
         return dto;
     }
-
     public CompraProductoDto buscarArticuloPorId(Long id) {
         Articulo articulo = articuloRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Articulo no encontrado con id: " + id));
