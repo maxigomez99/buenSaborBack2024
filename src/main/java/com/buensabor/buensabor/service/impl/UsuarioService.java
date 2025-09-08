@@ -105,6 +105,8 @@ public class UsuarioService implements IUsuarioService {
             userResponse.setRol(cliente.getRol());
             userResponse.setIdUsuario(cliente.getId());
             userResponse.setIdCliente(cliente.getId());
+            userResponse.setNombre(cliente.getNombre());
+            userResponse.setApellido(cliente.getApellido());
 
             return userResponse;
         }
@@ -120,6 +122,8 @@ public class UsuarioService implements IUsuarioService {
             userResponse.setIdEmpleado(empleado.getId());
             userResponse.setIdSucursal(empleado.getSucursal().getId());
             userResponse.setIdEmpresa(empleado.getSucursal().getEmpresa().getId());
+            userResponse.setNombre(empleado.getNombre());
+            userResponse.setApellido(empleado.getApellido());
 
             return userResponse;
         }
@@ -307,5 +311,3 @@ public class UsuarioService implements IUsuarioService {
     }
 
 }
-
-
