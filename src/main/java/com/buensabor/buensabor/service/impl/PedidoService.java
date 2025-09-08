@@ -115,6 +115,10 @@ public class PedidoService implements IPedidoService {
         pedidoDto.setTipoEnvio(pedido.getTipoEnvio());
         pedidoDto.setFechaPedido(pedido.getFechaPedido());
         pedidoDto.setPreferenceMPId(pedido.getPreferenceMPId());
+
+        // Agregar el cliente al DTO
+        pedidoDto.setCliente(pedido.getCliente());
+
         pedidoDto.setPedidoDetalleDto(pedido.getPedidoDetalle().stream()
                 .map(this::convertDetalleToDto)
                 .collect(Collectors.toList()));
@@ -229,4 +233,3 @@ public class PedidoService implements IPedidoService {
         }
     }
 }
-
