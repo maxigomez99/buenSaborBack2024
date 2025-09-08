@@ -27,6 +27,7 @@ public class CompraProductoService {
     @Autowired private ICategoriaRepository categoriaRepository;
     @Autowired private IClienteRepository clienteRepository;
     @Autowired private IEmpleadoRepository empleadoRepository;
+    @Autowired private IDomicilioRepository domicilioRepository;
 
     /**
      * Devuelve SOLO MANUFACTURADOS (no insumos), tanto de la categoría padre como de sus subcategorías,
@@ -220,7 +221,13 @@ public class CompraProductoService {
             pedido.setFechaPedido(LocalDate.now());
             pedido.setHora(LocalTime.now());
             pedido.setTotal(compraPedidoDto.getTotal());
-            pedido.setDomicilio(compraPedidoDto.getDomicilio());
+
+            // Recuperar domicilio de la base de datos para evitar detached entity
+            Domicilio domicilio = domicilioRepository.findById(compraPedidoDto.getDomicilio().getId())
+                    .orElseThrow(() -> new NoSuchElementException(
+                            "Domicilio no encontrado con id: " + compraPedidoDto.getDomicilio().getId()));
+            pedido.setDomicilio(domicilio);
+
             pedido.setTipoEnvio(compraPedidoDto.getTipoEnvio());
             pedido.setFormaPago(compraPedidoDto.getFormaPago());
             pedido.setCliente(clienteRepository.findById(compraPedidoDto.getCliente().getId())
