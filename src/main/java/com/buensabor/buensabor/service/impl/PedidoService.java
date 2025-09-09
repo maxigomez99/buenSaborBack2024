@@ -103,6 +103,19 @@ public class PedidoService implements IPedidoService {
             throw new Exception(e.getMessage());
         }
     }
+//pedidos de mas nuevo a mas viejo
+//    @Override
+//    public List<PedidoDto> traerPedidos(Long sucursalId) throws Exception {
+//        try {
+//            List<Pedido> pedidos = pedidoRepository.findBySucursal_Id(sucursalId);
+//            return pedidos.stream()
+//                    .sorted((p1, p2) -> p2.getFechaPedido().compareTo(p1.getFechaPedido()))
+//                    .map(this::convertToDto)
+//                    .collect(Collectors.toList());
+//        } catch (Exception e) {
+//            throw new Exception(e.getMessage());
+//        }
+//    }
 
     private PedidoDto convertToDto(Pedido pedido) {
         PedidoDto pedidoDto = new PedidoDto();
