@@ -16,4 +16,5 @@ public class InsumoDetalleDto {
     private Integer stockMaximo;
     private String unidadMedidaNombre;
     private String categoriaNombre;
+    private Double precioCompra;
 }

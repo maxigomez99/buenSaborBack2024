@@ -112,6 +112,7 @@ public class ArticuloController {
         dto.setDescripcion(insumo.getDescripcion());
         dto.setCodigo(insumo.getCodigo());
         dto.setCantidadNecesaria(detalle.getCantidad());
+        dto.setPrecioCompra(insumo.getPrecioCompra()); // Agregamos el precio de compra del insumo
         dto.setStockMaximo(insumo.getStockMaximo());
         dto.setUnidadMedidaNombre(insumo.getUnidadMedida() != null ? insumo.getUnidadMedida().getDenominacion() : null);
         dto.setCategoriaNombre(insumo.getCategoria() != null ? insumo.getCategoria().getDenominacion() : null);
